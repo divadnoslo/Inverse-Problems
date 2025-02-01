@@ -1,2 +1,41 @@
+# MATLAB Files
 **.asv
 **.mat
+
+# LaTeX Files
+**.aux
+**.lof
+**.log
+**.lot
+**.fls
+**.out
+**.toc
+**.fmt
+**.fot
+**.cb
+**.cb2 
+**.lb
+
+# LaTeX Intermediate Documents
+**.dvi
+**.xdv
+*-converted-to.*
+
+# LaTeX Bibliography auxiliary files (bibtex/biblatex/biber)
+**.bbl
+**.bbl-SAVE-ERROR
+**.bcf
+**.blg
+**-blx.aux
+**-blx.bib
+**.run.xml
+
+# LaTeX Build tool directories for auxiliary files
+**.fdb_latexmk
+**.synctex
+**.synctex(busy)
+**.synctex.gz
+**.synctex.gz(busy)
+**.pdfsync
+**.rubbercache
+rubber.cache
