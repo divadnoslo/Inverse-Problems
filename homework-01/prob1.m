@@ -2,35 +2,93 @@ close all
 clear
 clc
 
-%% Problem 01
+% Problem 1
+
+%% Part A
 
 % Discritize the integral into 20 equally spaced points
 n = 20;
 dz = 1/n;
-z = 0 : dz : 1;
+z = linspace(dz/2, 1 - dz/2, n).';
+x = z;
 
-% Select values of x
-nx = 30;  % just picking something different than 20 for now
-dx = 1/nx;
-x = 0 : dx : 1;
+% Function handles to "g_{i,j}" and "d_{i}"
+g_ij = @(x, z)(5*sin(x.*z));
+d_i = @(x)(50*sin(x) - 50*sin(x).*cos(x));
 
-% Create Function Handles
-kernal = @(x, z)(5.*sin(x.*z));
-m_true = @(x)(10.*x.*sin(x));
-fredholm_inside = @(x, z)(kernal(x, z) * m_true(x));
-fredhom_ifk = @(x, z)(integral(fredholm_inside(x, z), 0, 1));
+% Construct "G" and "d" quantities
+G = zeros(n, n);
+for i = 1 : n
+    for j = 1 : n
+        G(i,j) = g_ij(x(i), z(j));
+    end
+end
+
+d = zeros(n, 1);
+for i = 1 : 20
+    d(i) = d_i(x(i));
+end
+
+% Solve for "m" in "Gm = d"
+m = G \ d;
+
+% Print results to the command window
+fprintf("**********************\n")
+fprintf("Part A\n")
+fprintf("**********************\n\n")
+fprintf("G Matrix\n")
+disp(G)
+fprintf("\n\nData (d)\n")
+disp(d)
+fprintf("\n\nModel (m)\n")
+disp(m)
 
 
+%% Part B
+
+% Compute condition number of G
+conditionNumber = cond(G);
+
+% Print condition number
+fprintf("**********************\n")
+fprintf("Part B\n")
+fprintf("**********************\n\n")
+fprintf("Condition number of G: %10.6e\n\n", conditionNumber)
 
 
-% % Plot Results
-% fig = figure("Name", "IFK vs. True Model");
-% hold on
-% plot(x, trueModel(x), 'k', "LineWidth", 2)
-% plot(x, d_true(x), 'r.', 'MarkerSize', 5)
-% title("IFK vs. True Model")
-% xlabel("x")
-% ylabel("m_t_r_u_e(x)")
-% grid on
-% grid minor
-% hold off
+%% Part C
+
+% True Model
+trueModel = @(x)(10.*x.*sin(x));
+m_true = zeros(n, 1);
+for i = 1 : n
+    m_true(i) = trueModel(x(i));
+end
+
+% Plot Results
+fig = figure("Name", "True vs. Computed Model");
+tl = tiledlayout(2, 1, "Parent", fig);
+
+nexttile(1)
+hold on
+plot(x, m_true, 'k.', "MarkerSize", 5)
+plot(x, m, 'b.', 'MarkerSize', 5)
+title("True vs. Computed Model")
+xlabel("x", "Interpreter", "latex")
+ylabel("m", "Interpreter", "latex")
+grid on
+grid minor
+legend(["True Model", "Computed Model"], "Location", "Best")
+hold off
+
+nexttile(2)
+hold on
+plot(x, m - m_true, 'r.')
+title("Error in Computed Model")
+xlabel("x", "Interpreter", "latex")
+ylabel("\\Delta m", "Interpreter", "latex")
+grid on
+grid minor
+hold off
+
+linkaxes(tl.Children, 'x')

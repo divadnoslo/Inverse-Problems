@@ -5,19 +5,18 @@
 \allowdisplaybreaks
 
 \newpage
-\section{Problem 1}
+\section*{Problem 1}
 
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.8\textwidth]{./images/problem_1_statement.png}
 \end{figure}
 
-\subsection{Solution}
+\subsection*{Solution}
 
-First, let's verify the solution of $m(x)$ via substitution. (This helped me understand the problem immensely, so I will include it here)
+First, let's verify the solution of $m(x)$ via substitution. (This helped me understand the problem immensely, so I will include it here for the sake of completeness)
 
 \begin{align*}
-	\\
 	\int_{0}^{1} g(x,z) m(z) dz &= d(x) \\
 	\\
 	\int_{0}^{1} 5 \sin(xz) m(z) dz &= 50 \sin(x) - 50 \sin(x) \cos(x) \\
@@ -36,11 +35,53 @@ First, let's verify the solution of $m(x)$ via substitution. (This helped me und
 	\\
 	&= 50 \sin(x) - 50 \sin(x) \cos(x) = d(x) \,\,\,\, \textcolor{green}{\checkmark}
 \end{align*}
-
-\textcolor{red}{Put answers here}
 	
-\subsubsection{Part A}
+\subsubsection*{Part A}
 
-\textcolor{red}{If subpart to the question exist}
+Now, suppose that I do not know $m(x)$ for the purposes of this question. Discretizing the given integral using 20 midpoints such that the index $j$ is a member of the set $\{j \in \Z : 1 \leq j \leq 20\}$. Approximating the given Fredholm integral equation of the first kind leads to
+
+\begin{align*}
+	\int_{0}^{1} g(x,z) m(z) dz &= d(x) \\
+	\\
+	\int_{0}^{1} 5 \sin(xz) m(z) dz &\approx \sum_{j = 1}^{20} 5 \sin(xz_{j}) m(z_{j}) \Delta z \\
+	\\
+	&\approx 5 \sin(xz_{1}) m(z_{1}) \Delta z + 5 \sin(xz_{2}) m(z_{2}) \Delta z + \cdots + 5 \sin(xz_{20}) m(z_{20}) \Delta z
+\end{align*}
+
+To fit this discrete numerical integration to the form $G\bv{m} = \bv{d}$, let the variable $x$ be sampled at 20 equally spaced such that the index $i$ is a member of set $\{x \in \Z : 1 \leq i \leq 20\}$. (Note: A bold symbol indicates a vector quantity) This above summation can be expressed as a linear system of equations such that
+
+\begin{align*}
+	\begin{bmatrix}
+		g_{1,1} & g_{1,2} & \cdots & g_{1,20} \\ 
+		g_{2,1} & g_{2,2} & \cdots & g_{2,20} \\ 
+		\vdots & \vdots & \ddots & \vdots \\
+		g_{20,1} & g_{20,2} & \cdots & g_{20,20}
+	\end{bmatrix}
+	\begin{bmatrix}
+		m(z_{1}) \\ m_(z_{2}) \\ \vdots \\ m(z_{20})
+	\end{bmatrix}
+	= \begin{bmatrix}
+		d(x_{1}) \\ d(x_{2}) \\ \vdots \\ d(x_{20})
+	\end{bmatrix}
+\end{align*}
+
+where,
+
+\begin{align*}
+	G \in \R^{20 \times 20} &: g_{i,j} = 5 \sin(x_i z_j) \Delta z \\
+	\\
+	\bv{d} \in \R^{20} &: d_i = 50 \sin(x_i) - 50 \sin(x_i) \cos(x_i)
+\end{align*}
+
+The vector $\bv{m} \in \R^{20}$ can be solved as
+
+\begin{align*}
+	\bv{m} = G^{-1} \bv{d}
+\end{align*}
+
+Constructing these vectors and matrices in \MATLAB (provided in file \texttt{prob1.m}), this results in the following quantities for $G$ and $\bv{m}$.
+
+
+
 
 
