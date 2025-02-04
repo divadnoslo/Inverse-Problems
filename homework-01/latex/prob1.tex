@@ -1,0 +1,157 @@
+%----------------------------------------------------------------------
+% Problem 1
+
+\begingroup
+\allowdisplaybreaks
+
+\newpage
+\section*{Problem 1}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./images/problem_1_statement.png}
+\end{figure}
+
+\subsection*{Solution}
+
+First, let's verify the solution of $m(x)$ via substitution. (This helped me understand the problem immensely, so I will include it here for the sake of completeness)
+
+\begin{align*}
+	\int_{0}^{1} g(x,z) m(z) dz &= d(x) \\
+	\\
+	\int_{0}^{1} 5 \sin(xz) m(z) dz &= 50 \sin(x) - 50 \sin(x) \cos(x) \\
+	\\
+	\int_{0}^{1} 5 \sin(xz) m(z) dz &= \int_{0}^{1} 5 \sin(xz) m(x) dz \\
+	\\
+	&= \int_{0}^{1} 5 \sin(xz) \left( 10 x \sin(x) \right) dz \\
+	\\
+	&= 50 x \sin(x) \int_{0}^{1} \sin(xz) dz \\
+	\\
+	&= - \frac{50 x \sin(x)}{x} \left[ \cos(xz) \right] |_{0}^{1} \\
+	\\
+	&= - \frac{50 x \sin(x)}{x} \left( \cos(x) - \cos(0) \right) \\
+	\\
+	&= 50 \sin(x) \left( 1 - \cos(x) \right) \\
+	\\
+	&= 50 \sin(x) - 50 \sin(x) \cos(x) = d(x) \,\,\,\, \textcolor{green}{\checkmark}
+\end{align*}
+	
+\subsubsection*{Part A}
+
+ Discretizing the given integral using 20 midpoints on the interval $0 \leq z \leq 1$ such that the index $j$ is a member of the set $\{j \in \Z : 1 \leq j \leq 20\}$. Each discrete sample of $z_j$ is picked using the midpoint rule such that
+ 
+ \begin{align*}
+ 	\Delta z &= \frac{1}{20} \\
+ 	\\
+ 	z_j &= \frac{\Delta z}{2} + \left(j - 1\right) \Delta z
+ \end{align*}
+ 
+ Approximating the given Fredholm integral equation of the first kind leads to
+
+\begin{align*}
+	\int_{0}^{1} g(x,z) m(z) dz &= d(x) \\
+	\\
+	\int_{0}^{1} 5 \sin(xz) m(z) dz &\approx \sum_{j = 1}^{20} 5 \sin(xz_{j}) m(z_{j}) \Delta z \\
+	\\
+	&\approx 5 \sin(xz_{1}) m(z_{1}) \Delta z + 5 \sin(xz_{2}) m(z_{2}) \Delta z + \cdots + 5 \sin(xz_{20}) m(z_{20}) \Delta z
+\end{align*}
+
+To fit this discrete numerical integration to the form $G\bv{m} = \bv{d}$, let the variable $x$ using the same midpoint rule be sampled at 20 equally spaced such that the index $i$ is a member of set $\{x \in \Z : 1 \leq i \leq 20\}$. (Note: A bold symbol indicates a vector quantity) This above summation can be expressed as a linear system of equations such that
+
+\begin{align*}
+	\begin{bmatrix}
+		g_{1,1} & g_{1,2} & \cdots & g_{1,20} \\ 
+		g_{2,1} & g_{2,2} & \cdots & g_{2,20} \\ 
+		\vdots & \vdots & \ddots & \vdots \\
+		g_{20,1} & g_{20,2} & \cdots & g_{20,20}
+	\end{bmatrix}
+	\begin{bmatrix}
+		m(z_{1}) \\ m_(z_{2}) \\ \vdots \\ m(z_{20})
+	\end{bmatrix}
+	= \begin{bmatrix}
+		d(x_{1}) \\ d(x_{2}) \\ \vdots \\ d(x_{20})
+	\end{bmatrix}
+\end{align*}
+
+where,
+
+\begin{align*}
+	G \in \R^{20 \times 20} &: g_{i,j} = 5 \sin(x_i z_j) \Delta z \\
+	\\
+	\bv{d} \in \R^{20} &: d_i = 50 \sin(x_i) - 50 \sin(x_i) \cos(x_i)
+\end{align*}
+
+The vector $\bv{m} \in \R^{20}$ can be solved as
+
+\begin{align*}
+	\bv{m} = G^{-1} \bv{d}
+\end{align*}
+
+Constructing these vectors and matrices in \MATLAB (provided in file \texttt{prob1.m}), this results in the following quantities for $G$ and $\bv{m}$.
+
+Using the function \texttt{cond()} in \MATLAB provides the following output.
+
+\begin{figure}[h] \label{fig: prob 1 part a G}
+	\centering
+	\includegraphics[width=0.95\textwidth]{./images/prob1_parta_G.png}
+	\caption{Problem 1, Part A: Operator $G$}
+\end{figure}
+\FloatBarrier
+
+\begin{figure}[h] \label{fig: prob 1 part a d}
+	\centering
+	\includegraphics[width=0.15\textwidth]{./images/prob1_parta_d.png}
+	\caption{Problem 1, Part A: Data $\bv{d}$}
+\end{figure}
+\FloatBarrier
+
+\begin{figure}[h] \label{fig: prob 1 part a m}
+	\centering
+	\includegraphics[width=0.15\textwidth]{./images/prob1_parta_m.png}
+	\caption{Problem 1, Part A: Model $\bv{m}$}
+\end{figure}
+\FloatBarrier
+
+\subsubsection*{Part B}
+
+
+Using the function \texttt{cond()} in \MATLAB provides the following output.
+
+\begin{figure}[h] \label{fig: prob 1 part b}
+	\centering
+	\includegraphics[width=0.5\textwidth]{./images/prob1_partb.png}
+	\caption{Problem 1, Part B: Condition Number}
+\end{figure}
+\FloatBarrier
+
+Clearly, the operator $G$ is ill-conditioned.
+
+
+\subsubsection*{Part C}
+
+Figure \ref{fig: prob 1 part c} shows the true model compared to the computed model, as well as the error between the two models. 
+
+\begin{figure}[h] \label{fig: prob 1 part c}
+	\centering
+	\includegraphics[width=0.95\textwidth]{./images/prob1_partc.png}
+	\caption{Problem 1, Part C: True vs. Computed Model}
+\end{figure}
+\FloatBarrier
+
+
+\subsubsection*{Part D}
+
+The solution is so poor due to the high condition number for the operator $G$. This means that small perturbations in the data are amplified by ~19 orders of magnitude, making the solution completely unstable. 
+
+Another way to think about it, the determinate of $G$ is incredibly close to zero, meaning that any vector transformed by this matrix is scaled down to nearly zero. 
+
+\begin{figure}[h] \label{fig: prob 1 part d}
+	\centering
+	\includegraphics[width=0.35\textwidth]{./images/prob1_partd.png}
+	\caption{Problem 1, Part D: Determinate}
+\end{figure}
+\FloatBarrier
+
+In this case, it is likely that the floating point error in \MATLAB kept the determinate from equaling exactly zero. While I am not eager to compute the determinate of a $\R^{20 \times 20}$ matrix by hand, I suspect that analytically it may turn out to be zero. If that was truly the case, then it shouldn't have even been possible to compute the inverse of $G$ to solve for the model.
+
+

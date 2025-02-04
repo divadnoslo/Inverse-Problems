@@ -9,7 +9,10 @@ clc
 % Discritize the integral into 20 equally spaced points
 n = 20;
 dz = 1/n;
-z = linspace(dz/2, 1 - dz/2, n).';
+z = zeros(n, 1);
+for k = 1 : n
+    z(k) = dz/2 + (k - 1)*dz;
+end
 x = z;
 
 % Function handles to "g_{i,j}" and "d_{i}"
@@ -74,8 +77,8 @@ hold on
 plot(x, m_true, 'k.', "MarkerSize", 5)
 plot(x, m, 'b.', 'MarkerSize', 5)
 title("True vs. Computed Model")
-xlabel("x", "Interpreter", "latex")
-ylabel("m", "Interpreter", "latex")
+xlabel("x")
+ylabel("m")
 grid on
 grid minor
 legend(["True Model", "Computed Model"], "Location", "Best")
@@ -85,8 +88,8 @@ nexttile(2)
 hold on
 plot(x, m - m_true, 'r.')
 title("Error in Computed Model")
-xlabel("x", "Interpreter", "latex")
-ylabel("\\Delta m", "Interpreter", "latex")
+xlabel("x")
+ylabel("\Delta m")
 grid on
 grid minor
 hold off
