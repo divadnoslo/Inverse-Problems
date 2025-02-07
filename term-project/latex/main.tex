@@ -1,0 +1,145 @@
+\documentclass[letterpaper]{article}
+
+%----------------------------------------------------------------------
+% Packages
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{tikz, tcolorbox}
+\usepackage{siunitx}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{placeins}
+\usepackage[backend=biber, style=numeric-comp]{biblatex}
+
+
+%----------------------------------------------------------------------
+% Bibliography Resource
+
+\addbibresource{bib.bib}
+
+
+%----------------------------------------------------------------------
+% Custom Math Commands
+
+% General Shortcuts
+\newcommand{\R}{\mathbb{R}} % Real Numbers
+\newcommand{\C}{\mathbb{C}} % Complex Numbers
+\newcommand{\N}{\mathbb{N}} % Natural Numbers (0, 1, 2, ...)
+\newcommand{\Z}{\mathbb{Z}} % Integers (..., -2, -1, 0, 1, 2, ...)
+\newcommand{\Q}{\mathbb{Q}} % Rational Numbers
+
+% Linear Algebra Shortcuts
+\newcommand{\bv}[1]{\boldsymbol{#1}}      % bold vector quantity
+\newcommand{\T}{^{\intercal}}             % Transpose
+\newcommand{\norm}[1]{|| {#1} ||_1}       % generic norm
+\newcommand{\onenorm}[1]{|| {#1} ||_1}    % one norm
+\newcommand{\twonorm}[1]{|| {#1} ||_2}    % two norm
+\newcommand{\infnorm}[1]{|| {#1} ||_\inf}    % infinty norm
+
+% Probability and Statistics Shortcuts
+\newcommand{\E}[1]{\textrm{E}\left[#1\right]}
+\newcommand{\Var}[1]{\textrm{Var}\left(#1\right)}
+\newcommand{\Cov}[1]{\textrm{Cov}\left(#1\right)}
+
+% Navigation Shortcuts
+\newcommand{\navvec}[3]{\boldsymbol{#1}^{\,#2}_{#3}}              % navigation vector
+\newcommand{\navmeas}[3]{\tilde{\boldsymbol{#1}}^{\,#2}_{#3}}     % navigation measurement
+\newcommand{\navest}[3]{\hat{\boldsymbol{#1}}^{\,#2}_{#3}}        % navigation estimate
+\newcommand{\navC}[2]{C^{\,#1}_{#2}}                              % coordinate frame transformation
+\newcommand{\quat}[2]{q^{#1}_{#2}}                                % quaternion
+
+% Misc.
+\newcommand{\MATLAB}{MATLAB\,\textsuperscript{\tiny\textregistered}\,}
+
+
+%----------------------------------------------------------------------
+% Begin Document
+
+\begin{document}
+	
+	
+	%------------------------------------------------------------------
+	% Title
+	
+	\title{Inverse Problems for Inertial Sensor Calibration}
+	\author{David L. Olson}
+	\date{\today}
+	
+	\maketitle
+	
+	%------------------------------------------------------------------
+	% Abstract
+	
+	\input{abstract}
+	
+	%------------------------------------------------------------------
+	% Table of Contents
+	
+%	\tableofcontents
+	
+	%------------------------------------------------------------------
+	% Header and Footer
+	
+	\thispagestyle{empty}
+	\pagestyle{empty}
+	
+	\fancyhead{}
+	\fancyfoot{}
+	
+	\thispagestyle{fancy}
+	\pagestyle{fancy}
+	
+	\fancyhead[L]{\textbf{Inverse Problems}}
+	\fancyhead[R]{\textbf{David L. Olson}}
+	
+	\fancyfoot[L]{\textbf{Project Idea}}
+	\fancyfoot[R]{\thepage\ of \pageref{LastPage}}
+	
+	
+	%------------------------------------------------------------------
+	% Begin Technical Content
+	
+	
+	
+	%------------------------------------------------------------------
+	% Print Bibliography
+	
+	\newpage
+	\printbibliography
+	
+\end{document}
+
+
+%----------------------------------------------------------------------
+% Additional Copy-and-Paste Templates
+
+% Figure
+
+%\begin{figure}[h] \label{fig: my figure}
+%	\centering
+%	\includegraphics[width=0.8\textwidth]{./images/<image.png>}
+%	\caption{\textcolor{red}{provide a caption}}
+%\end{figure}
+
+
+% Table
+
+%\begin{center}
+%	\begin{tabular} { | h1 | h2 | h3 | } \label{tab: my table}
+	%		
+	%		\hline
+	%		x11 & x12 & x13 \\
+	%		\hline
+	%		x21 & x22 & x23 \\
+	%		\hline
+	%		x31 & x32 & x33 \\
+	%		\hline
+	%		
+	%	\end{tabular}
+%	\caption{\textcolor{red}{put caption here}
+	%\end{center}
