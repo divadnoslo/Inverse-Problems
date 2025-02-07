@@ -89,7 +89,7 @@ The vector $\bv{m} \in \R^{20}$ can be solved as
 
 Constructing these vectors and matrices in \MATLAB (provided in file \texttt{prob1.m}), this results in the following quantities for $G$ and $\bv{m}$.
 
-Using the function \texttt{cond()} in \MATLAB provides the following output.
+Using the \MATLAB syntax \texttt{m = G \textbackslash d}, the following outputs are produced and printed to the command window.
 
 \begin{figure}[h] \label{fig: prob 1 part a G}
 	\centering
@@ -113,7 +113,6 @@ Using the function \texttt{cond()} in \MATLAB provides the following output.
 \FloatBarrier
 
 \subsubsection*{Part B}
-
 
 Using the function \texttt{cond()} in \MATLAB provides the following output.
 
@@ -141,13 +140,13 @@ Figure \ref{fig: prob 1 part c} shows the true model compared to the computed mo
 
 \subsubsection*{Part D}
 
-The solution is so poor due to the high condition number for the operator $G$. This means that small perturbations in the data are amplified by ~19 orders of magnitude, making the solution completely unstable. 
+The solution is so poor due to the high condition number of the operator $G$. This means that small perturbations in the data are amplified by ~19 orders of magnitude, making the solution completely unstable. 
 
 Another way to think about it, the determinate of $G$ is incredibly close to zero, meaning that any vector transformed by this matrix is scaled down to nearly zero. 
 
 \begin{figure}[h] \label{fig: prob 1 part d}
 	\centering
-	\includegraphics[width=0.35\textwidth]{./images/prob1_partd.png}
+	\includegraphics[width=0.25\textwidth]{./images/prob1_partd.png}
 	\caption{Problem 1, Part D: Determinate}
 \end{figure}
 \FloatBarrier

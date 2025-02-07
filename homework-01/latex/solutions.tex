@@ -4,6 +4,7 @@
 % Packages
 
 \usepackage{amsmath}
+\usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{graphicx}
 \usepackage{xcolor}
@@ -27,10 +28,16 @@
 
 % Linear Algebra Shortcuts
 \newcommand{\bv}[1]{\boldsymbol{#1}}      % bold vector quantity
+\newcommand{\T}{^{\intercal}}             % Transpose
 \newcommand{\norm}[1]{|| {#1} ||_1}       % generic norm
 \newcommand{\onenorm}[1]{|| {#1} ||_1}    % one norm
 \newcommand{\twonorm}[1]{|| {#1} ||_2}    % two norm
 \newcommand{\infnorm}[1]{|| {#1} ||_\inf}    % infinty norm
+
+% Probability and Statistics Shortcuts
+\newcommand{\E}[1]{\textrm{E}\left[#1\right]}
+\newcommand{\Var}[1]{\textrm{Var}\left(#1\right)}
+\newcommand{\Cov}[1]{\textrm{Cov}\left(#1\right)}
 
 % Navigation Shortcuts
 \newcommand{\navvec}[3]{\boldsymbol{#1}^{\,#2}_{#3}}              % navigation vector
@@ -39,8 +46,8 @@
 \newcommand{\navC}[2]{C^{\,#1}_{#2}}                              % coordinate frame transformation
 \newcommand{\quat}[2]{q^{#1}_{#2}}                                % quaternion
 
-% MATLAB
-\newcommand{\MATLAB}{MATLAB\,\textsuperscript{\tiny\textregistered}}
+% Misc.
+\newcommand{\MATLAB}{MATLAB\,\textsuperscript{\tiny\textregistered}\,}
 
 
 %----------------------------------------------------------------------
@@ -52,7 +59,7 @@
 	%------------------------------------------------------------------
 	% Title
 	
-	\title{Homework 1}
+	\title{Homework 1 \textcolor{red}{(DRAFT)}}
 	\author{David L. Olson}
 	\date{\today}
 	
