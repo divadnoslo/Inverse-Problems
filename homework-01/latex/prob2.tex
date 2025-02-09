@@ -14,28 +14,20 @@
 
 \subsection*{Solution}
 
-Consider the example column vectors $\bv{x},\,\bv{y} \in \R^{n}$ where $n$ is the number of elements in the vector. Then, consider the sum of products given by the expression $\left(\bv{x} + \bv{y}\right)^2$
+Consider column vectors of equal dimension $\bv{x},\,\bv{y} \in \R^{n}$. Let $\bv{x} \perp \bv{y}$, meaning that $\bv{x}^T \bv{y} = 0$. First, recall that the dot product operator is \textit{additive} and \textit{distributive}. These properties allow for the following expansion
 
 \begin{align*}
-	\left(\bv{x} + \bv{y}\right)^2 &= \left(\bv{x} + \bv{y}\right) \left(\bv{x} + \bv{y}\right) \\
+	\twonorm{\bv{x} + \bv{y}}^2 &= \twonorm{\left(\bv{x} + \bv{y}\right) \cdot \left(\bv{x} + \bv{y}\right)} \\
 	\\
-	&= \bv{x}^T\bv{x} + \bv{x}^T\bv{y} + \bv{y}^T\bv{x} + \bv{y}^T\bv{y}
-\end{align*}
-
-Let $\bv{x}$ and $\bv{y}$ be perpendicular such that $\bv{x}^T\bv{y} = \bv{y}^T\bv{x} = 0$. (Recall that dot products are associative) The above expression simplifies such that
-
-\begin{align*}
-	\bv{x}^T\bv{x} + \bv{x}^T\bv{y} + \bv{y}^T\bv{x} + \bv{y}^T\bv{y} &= \bv{x}^T\bv{x} + 0 + 0 + \bv{y}^T\bv{y} \\
-	\\
-	&= \twonorm{\bv{x}} + \twonorm{\bv{y}} 
-\end{align*}
-
-Therefore, within the two-norm operation:
-
-\begin{align*}
-	\twonorm{\bv{x} + \bv{y}}^2 &= \twonorm{\bv{x} + \bv{y}} \twonorm{\bv{x} + \bv{y}} \\
+	&= \twonorm{\bv{x} \cdot \bv{x}} + \twonorm{\bv{x} \cdot \bv{y}} + \twonorm{\bv{y} \cdot \bv{x}} + \twonorm{\bv{y} \cdot \bv{y}} \\
 	\\
 	&= \twonorm{\bv{x}^T\bv{x}} + \twonorm{\bv{x}^T\bv{y}} + \twonorm{\bv{y}^T\bv{x}} + \twonorm{\bv{y}^T\bv{y}} \\
 	\\
-	&= \twonorm{\bv{x}} + \twonorm{\bv{y}} \,\,\,\,\, \textcolor{green}{\checkmark}
+	&= \twonorm{\bv{x}^T\bv{x}} + \twonorm{\bv{x}^T\bv{y}} + \twonorm{\left(\bv{x}^T\bv{y}\right)^T} +\twonorm{\bv{y}^T\bv{y}} \\
+	\\
+	&= \twonorm{\bv{x}^T\bv{x}} + \cancelto{0}{\twonorm{\bv{x}^T\bv{y}}} + \cancelto{0}{\twonorm{\left(\bv{x}^T\bv{y}\right)^T}} + \twonorm{\bv{y}^T\bv{y}} \\
+	\\
+	&= \twonorm{\bv{x}^T\bv{x}} + \twonorm{\bv{y}^T\bv{y}} \\
+	\\
+	&= \twonorm{\bv{x}}^2 + \twonorm{\bv{y}}^2 \,\,\,\,\, \textcolor{green}{\checkmark}
 \end{align*}
