@@ -14,13 +14,13 @@
 
 \subsection*{Solution}
 
-Given the problem statement, let random vectors $\bv{X}$ and $\bv{Y}$ contain the same number of elements and each vector is identically distributed such that
+Given the problem statement, let random vectors $\bv{X}$ and $\bv{Y}$ be of equal dimension such that
 
 \begin{align*}
 	\bv{X},\,\bv{Y} \sim \textrm{N}\left(0,\,I\right)
 \end{align*}
 
-Given the new random vector $\bv{Z} = \bv{X} + \bv{Y}$, the expected value of $\bv{Z}$ is
+Creating a new random vector $\bv{Z} = \bv{X} + \bv{Y}$, the expected value of $\bv{Z}$ is
 
 \begin{align*}
 	\E{\bv{Z}} &= \E{\bv{X} + \bv{Y}} \\
@@ -32,25 +32,28 @@ Given the new random vector $\bv{Z} = \bv{X} + \bv{Y}$, the expected value of $\
 	&= \bv{0} \,\,\,\,\, \textcolor{green}{\checkmark}
 \end{align*}
 
-\textcolor{red}{Not sure if "covariance" is a typo, I suspect it should be "variance"? If so...}
-
-The variance of $\bv{Z}$ is
+To determine the covariance of $\bv{Z}$, we must first find a matrix $A$ such that $\bv{Z} = \bv{X} + \bv{Y}$. $A$ is defined as:
 
 \begin{align*}
-	\Var{\bv{Z}} &= \Var{\bv{X} + \bv{Y}} \\
+	\bv{Z} &= A \begin{bmatrix} \bv{X} \\ \bv{Y} \end{bmatrix}
 	\\
-	&= \Var{\bv{X}} + \Var{\bv{Y}} + 2\Cov{\bv{X},\bv{Y}}
+	\bv{Z} &= \begin{bmatrix} I & I \end{bmatrix} \begin{bmatrix} \bv{X} \\ \bv{Y} \end{bmatrix}
+	\\
+	\\
+	\\
+	A &\defeq \begin{bmatrix} I & I \end{bmatrix}
 \end{align*}
 
-Given the problem statement, the covariance of the concatenation of random vectors $\bv{X}$ and $\bv{Y}$ shows that these two random vectors are independent of each other. Therefore
+The covariance of $\bv{Z}$ is given by the transformation $\bv{Z} = A C A^T$, which is shown below.
 
 \begin{align*}
-	\Var{\bv{X}} + \Var{\bv{Y}} + 2\Cov{\bv{X},\bv{Y}} &= \Var{\bv{X}} + \Var{\bv{Y}} + 0 \\
+	\Cov{\bv{Z}} &= A \Cov{\begin{bmatrix} \bv{X} \\ \bv{Y} \end{bmatrix}} A^T \\
+	\\
+	&= \begin{bmatrix} I & I \end{bmatrix} \begin{bmatrix} I & 0 \\ 0 & I \end{bmatrix} \begin{bmatrix} I \\ I \end{bmatrix} \\
+	\\
+	&= \begin{bmatrix} I & I \end{bmatrix} \begin{bmatrix} I \\ I \end{bmatrix} \\
 	\\
 	&= I + I \\
 	\\
 	&= 2I \,\,\,\,\, \textcolor{green}{\checkmark}
-\end{align*} 
-
-
-
+\end{align*}
