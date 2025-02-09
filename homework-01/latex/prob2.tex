@@ -17,9 +17,7 @@
 Consider column vectors of equal dimension $\bv{x},\,\bv{y} \in \R^{n}$. Let $\bv{x} \perp \bv{y}$, meaning that $\bv{x}^T \bv{y} = 0$. Also, recall that the dot product operator is \textit{additive} and \textit{distributive}.
 
 \begin{align*}
-	\twonorm{\bv{x} + \bv{y}}^2 &= \twonorm{\left(\bv{x} + \bv{y}\right) \cdot \left(\bv{x} + \bv{y}\right)} \\
-	\\
-	&= \twonorm{\bv{x} \cdot \bv{x}} + \twonorm{\bv{x} \cdot \bv{y}} + \twonorm{\bv{y} \cdot \bv{x}} + \twonorm{\bv{y} \cdot \bv{y}} \\
+	\twonorm{\bv{x} + \bv{y}}^2 &= \twonorm{\left(\bv{x} + \bv{y}\right)^T \left(\bv{x} + \bv{y}\right)} \\
 	\\
 	&= \twonorm{\bv{x}^T\bv{x}} + \twonorm{\bv{x}^T\bv{y}} + \twonorm{\bv{y}^T\bv{x}} + \twonorm{\bv{y}^T\bv{y}} \\
 	\\
