@@ -14,13 +14,6 @@
 \usepackage{fancyhdr}
 \usepackage{lastpage}
 \usepackage{placeins}
-\usepackage[backend=biber, style=numeric-comp]{biblatex}
-
-
-%----------------------------------------------------------------------
-% Bibliography Resource
-
-\addbibresource{bib.bib}
 
 
 %----------------------------------------------------------------------
@@ -110,7 +103,8 @@
 	% Print Bibliography
 	
 	\newpage
-	\printbibliography
+	\bibliographystyle{numeric}
+	\bibliography{references}
 	
 \end{document}
 
