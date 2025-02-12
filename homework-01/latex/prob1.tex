@@ -5,14 +5,14 @@
 \allowdisplaybreaks
 
 \newpage
-\section*{Problem 1}
+\section{Problem 1}
 
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.8\textwidth]{./images/problem_1_statement.png}
 \end{figure}
 
-\subsection*{Solution}
+\subsection{Solution}
 
 First, let's verify the solution of $m(x)$ via substitution. (This helped me understand the problem immensely, so I will include it here for the sake of completeness)
 
@@ -36,7 +36,7 @@ First, let's verify the solution of $m(x)$ via substitution. (This helped me und
 	&= 50 \sin(x) - 50 \sin(x) \cos(x) = d(x) \,\,\,\, \textcolor{green}{\checkmark}
 \end{align*}
 	
-\subsubsection*{Part A}
+\subsubsection{Part A}
 
  Discretizing the given integral using 20 midpoints on the interval $0 \leq z \leq 1$ such that the index $j$ is a member of the set $\{j \in \Z : 1 \leq j \leq 20\}$. Each discrete sample of $z_j$ is picked using the midpoint rule such that
  
@@ -112,7 +112,7 @@ Using the \MATLAB syntax \texttt{m = G \textbackslash d}, the following outputs 
 \end{figure}
 \FloatBarrier
 
-\subsubsection*{Part B}
+\subsubsection{Part B}
 
 Using the function \texttt{cond()} in \MATLAB provides the following output.
 
@@ -126,7 +126,7 @@ Using the function \texttt{cond()} in \MATLAB provides the following output.
 Clearly, the operator $G$ is ill-conditioned.
 
 
-\subsubsection*{Part C}
+\subsubsection{Part C}
 
 Figure \ref{fig: prob 1 part c} shows the true model compared to the computed model, as well as the error between the two models. 
 
@@ -138,7 +138,7 @@ Figure \ref{fig: prob 1 part c} shows the true model compared to the computed mo
 \FloatBarrier
 
 
-\subsubsection*{Part D}
+\subsubsection{Part D}
 
 The solution is so poor due to the high condition number of the operator $G$. This means that small perturbations in the data are amplified by ~19 orders of magnitude, making the solution completely unstable. 
 
