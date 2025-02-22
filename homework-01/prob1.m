@@ -16,14 +16,14 @@ end
 x = z;
 
 % Function handles to "g_{i,j}" and "d_{i}"
-g_ij = @(x, z)(5*sin(x.*z));
+g_ij = @(x, z, dz)(5 * sin(x.*z) * dz);
 d_i = @(x)(50*sin(x) - 50*sin(x).*cos(x));
 
 % Construct "G" and "d" quantities
 G = zeros(n, n);
 for i = 1 : n
     for j = 1 : n
-        G(i,j) = g_ij(x(i), z(j));
+        G(i,j) = g_ij(x(i), z(j), dz);
     end
 end
 

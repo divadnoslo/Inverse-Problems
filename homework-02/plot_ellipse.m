@@ -14,7 +14,7 @@ r=zeros(n,2);
 for i=1:n
 %store each (x,y) pair on the confidence ellipse
 %in the corresponding row of r
-r(i,:)=sqrt(DELTA2/(xhat(i,:)*Cinv*xhat(i,:)'))*xhat(i,:);
+r(i,:)=sqrt(DELTA2/(xhat(i,:)*Cinv*xhat(i,:)'))*xhat(i,:).';
 end
 plot(m(1)+r(:,1), m(2)+r(:,2));
 axis equal
