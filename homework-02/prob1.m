@@ -35,7 +35,7 @@ sigma = 0.1;
 G = [ones(m, 1), x];
 
 % Apply weighting
-W = diag(sigma .* ones(m, 1));
+W = (1/sigma) .* eye(6);
 Gw = W * G;
 dw = W * t;
 
@@ -244,7 +244,7 @@ grid minor
 
 % Chi^2 Monte Carlo Histograms
 fig = figure("Name", "Part E - \chi^2 Monte Carlo Histogram");
-hist(chimc)
+histogram(gca, chimc)
 title("Part E - \chi^2 Monte Carlo Histogram")
 xlabel("Bins")
 grid on
@@ -365,7 +365,7 @@ grid minor
 
 % Chi^2 Monte Carlo Histograms
 fig = figure("Name", "Part H - L1 \chi^2 Monte Carlo Histogram");
-histogram(gca, chimc_L1)
+histogram(gca, chimc_L1, 200)
 title("Part H - L1 \chi^2 Monte Carlo Histogram")
 xlabel("Bins")
 grid on
