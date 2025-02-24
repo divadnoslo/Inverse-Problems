@@ -56,3 +56,16 @@ While $a_1$ equals one as expected, all other terms are \textit{close to zero, b
 
 This is an extreme example of over-fitting the data. By simple observation of the data, there are 18 extra unnecessary parameters to fit this linear trend. 
 
+However, the ordinary least squares solution was likely not exact due to floating point error. Take note of the high condition number of $G$. 
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.15\textwidth]{./images/prob2_cond.png}
+	\caption{Data, Fitted Model, and Residuals}
+	\label{fig: prob2 rcond}
+\end{figure}
+\FloatBarrier
+
+Any floating point error throughout the computation could be amplified by a factor of $\sim 1 \times 10^{8}$, which essentially introduces noise which our high-degree polynomial will attempt to fit, hence the over-fitting.
+
+

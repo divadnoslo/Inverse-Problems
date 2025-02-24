@@ -196,7 +196,7 @@ fprintf("Part D\n")
 fprintf("**************************\n\n")
 
 % Compute chi2 observed
-chi2 = sum((t - G*m_L2).^2 ./ sigma.^2);
+chi2 = norm((t - G*m_L2) ./ sigma)^2;
 fprintf("Observed chi2: %8.6f \n", chi2)
 
 % Compute p-value
@@ -223,7 +223,7 @@ for k = 1 : numTrials
     y_trial = y_fit + sigma.*randn(m,1);
     y_w_trial = y_trial ./ sigma;
     m_mc(k,:) = (Gw \ y_w_trial).';
-    chi_mc(k)= norm((y_trial - G*m_mc(k,:).') ./ sigma^2);
+    chi_mc(k)= norm((y_trial - G*m_mc(k,:).') ./ sigma)^2;
 end
 
 % Model Monte Carlo Histograms
@@ -232,14 +232,14 @@ tl = tiledlayout(2, 1, "Parent", fig);
 title(tl, "Part E - Model Parameter MC Histograms")
 
 ax = nexttile(1);
-histogram(ax, m_mc(:,1))
+histogram(ax, m_mc(:,1), 'Normalization', 'pdf')
 title("t_0 Histogram")
 xlabel("Bins")
 grid on
 grid minor
 
 ax = nexttile(2);
-histogram(ax, m_mc(:,2))
+histogram(ax, m_mc(:,2), 'Normalization', 'pdf')
 title("s_2 Histogram")
 xlabel("Bins")
 grid on
@@ -248,11 +248,20 @@ saveFigureAsEps("prob1_partE_1.eps", fig)
 
 % Chi^2 Monte Carlo Histograms
 fig = figure("Name", "Part E - \chi^2 Monte Carlo Histogram");
-histogram(gca, chi_mc)
+ax = gca;
+hold(ax, "on")
+histogram(gca, chi_mc, 'Normalization', 'pdf')
 title("Part E - \chi^2 Monte Carlo Histogram")
 xlabel("Bins")
 grid on
 grid minor
+
+% Add Chi-Squared PDF
+b = ax.XLim;
+b = b(1) : 0.1 : b(2);
+c = chi2pdf(b, nu);
+plot(ax, b, c, 'k')
+legend(["Empirical", "Theoretical"], "Location", "eastoutside")
 saveFigureAsEps("prob1_partE_2.eps", fig)
 
 % Space out print outs
