@@ -11,6 +11,9 @@ warning off
 % Add "Lib" to serach path
 addpath(genpath(fullfile("..", "PEIP-master", "Lib")))
 
+% Save figures as *.eps
+saveFigureAsEps = @(name, fig)(exportgraphics(fig, fullfile(pwd, "latex", "images", name)));
+
 % Print Preamble
 fprintf("Homework 2, Problem 2\n\n")
 
@@ -33,6 +36,12 @@ end
 
 % Compute least squares solution
 m_L2 = (G.' * G) \ G.' * y;
+
+% Display model parameters
+disp("L2 Regression Model Parameters")
+format shorte
+disp(m_L2)
+format shortg
 
 % Compute data for comparison
 xs = (-1 : 1e-3 : 1).';
@@ -71,3 +80,6 @@ ylabel("\Delta y")
 grid on
 grid minor
 legend(["Fit - Truth", "L2 Fit Residuals"], "Location", "eastoutside")
+
+linkaxes(tl.Children, 'x')
+saveFigureAsEps("prob2_1.eps", fig)
