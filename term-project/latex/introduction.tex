@@ -1,0 +1,35 @@
+%----------------------------------------------------------------------
+% Introduction
+
+\begingroup
+\allowdisplaybreaks
+
+\section{Introduction}
+
+A key challenge for self-driving cars is solving the navigation problem which requires determining the position, velocity, and attitude (PVA) of the vehicle. Navigation is an interdisciplinary field of engineering which seeks to fuse measurements of many different sensors such as inertial measurement units (IMUs), global positioning system (GPS) receivers, and a large variety of other sensors to form a PVA solution. It is crucial to not only formulate a navigation solution but also to track the uncertainty of that solution, which can play an important role in decision-making and risk-assessment for autonomous self-driving vehicle applications.
+
+IMUs contain accelerometers and gyroscopes generally in all three Cartesian axes which measure specific force and angular velocity respectively. These measurements are integrated to provide a PVA solution, but an IMU-only solution will drift away from truth unbounded due to the integration of sensor noise and other errors. An inertial navigation system (INS) integrates the IMU measurements and then uses GPS to provide accurate measurements of position to fuse with the IMU solution typically via a Kalman filter thus combating any position error drift. This allows for long-term accurate navigation suitable for a self-driving car traveling across the country.
+
+One particular challenge for navigation regarding self-driving cars is forming back-up modes of navigation when GPS signals are temporarily unavailable. This is especially important in urban environments where tall buildings and tunnels can cause signal blockages. Lack of GPS signals are problematic for an INS as its performance is dependent on receiving those signals, and the IMU-only solutions will drift away quickly from ground truth. Inertial-only navigation is suitable for short periods such as temporary GPS signal blockages, but the duration of a suitable inertial-only navigation is highly dependent on the quality of sensors contained within an IMU. This dilemma, among any others, motivates the need for rigorous IMU calibration and compensation.
+
+
+\subsection{IMU Calibration and Compensation as a Forward/Inverse Problem}
+
+Accelerometers and gyroscopes are subject to a variety of error sources such as biases, scale factor imperfections, axis misalignments, noise, and many others. IMU calibration is the process of characterizing these error sources, while compensation is the process of correcting measurements in real-time to provide the most accurate and precise measurements possible. The better these error sources are characterized, the slower that the IMU-only navigation solution will drift away from truth. 
+
+Inertial sensor calibration can be treated as an inverse problem. Consider an accelerometer as an example where the ideal forward model is quite straight forward; specific force in equals specific force out. Unfortunately in practice, we are not quite so lucky. Any error in the forward model is defined as
+
+\begin{align*}
+	\Delta f \defeq \tilde{f} - f
+\end{align*}
+
+where $\Delta f$ is the measurement error, $\tilde{f}$ is the specific force measured by the sensor which is subject to error, and $f$ is the true specific force acting on the accelerometer. The same applies to gyroscope measurements. 
+
+\begin{align*}
+	\Delta \omega \defeq \tilde{\omega} - \omega
+\end{align*}
+
+Inertial sensor errors $\Delta f$ and $\Delta \omega$ are subject to both deterministic and stochastic error and any number of contributing factors can make up these terms.
+
+Now consider an IMU which contains three accelerometers and three gyroscopes arranged to point in a standard Cartesian right-handed coordinate frame. A basic framework
+

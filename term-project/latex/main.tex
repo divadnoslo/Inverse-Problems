@@ -6,6 +6,8 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{cancel}
 \usepackage{graphicx}
 \usepackage{xcolor}
 \usepackage{tikz, tcolorbox}
@@ -14,27 +16,25 @@
 \usepackage{fancyhdr}
 \usepackage{lastpage}
 \usepackage{placeins}
-%\usepackage{hyperref}
-\usepackage{cite}
 
 
 %----------------------------------------------------------------------
 % Custom Math Commands
 
 % General Shortcuts
-\newcommand{\R}{\mathbb{R}} % Real Numbers
-\newcommand{\C}{\mathbb{C}} % Complex Numbers
-\newcommand{\N}{\mathbb{N}} % Natural Numbers (0, 1, 2, ...)
-\newcommand{\Z}{\mathbb{Z}} % Integers (..., -2, -1, 0, 1, 2, ...)
-\newcommand{\Q}{\mathbb{Q}} % Rational Numbers
+\newcommand{\defeq}{\vcentcolon=}  % Define as
+\newcommand{\R}{\mathbb{R}}        % Real Numbers
+\newcommand{\C}{\mathbb{C}}        % Complex Numbers
+\newcommand{\N}{\mathbb{N}}        % Natural Numbers (0, 1, 2, ...)
+\newcommand{\Z}{\mathbb{Z}}        % Integers (..., -2, -1, 0, 1, 2, ...)
+\newcommand{\Q}{\mathbb{Q}}        % Rational Numbers
 
 % Linear Algebra Shortcuts
 \newcommand{\bv}[1]{\boldsymbol{#1}}      % bold vector quantity
-\newcommand{\T}{^{\intercal}}             % Transpose
 \newcommand{\norm}[1]{|| {#1} ||_1}       % generic norm
 \newcommand{\onenorm}[1]{|| {#1} ||_1}    % one norm
 \newcommand{\twonorm}[1]{|| {#1} ||_2}    % two norm
-\newcommand{\infnorm}[1]{|| {#1} ||_\inf}    % infinty norm
+\newcommand{\infnorm}[1]{|| {#1} ||_\inf} % infinty norm
 
 % Probability and Statistics Shortcuts
 \newcommand{\E}[1]{\textrm{E}\left[#1\right]}
@@ -75,7 +75,7 @@
 	%------------------------------------------------------------------
 	% Table of Contents
 	
-%	\tableofcontents
+	\tableofcontents
 	
 	%------------------------------------------------------------------
 	% Header and Footer
@@ -92,14 +92,14 @@
 	\fancyhead[L]{\textbf{Inverse Problems}}
 	\fancyhead[R]{\textbf{David L. Olson}}
 	
-	\fancyfoot[L]{\textbf{Project Idea}}
+	\fancyfoot[L]{\textbf{Term Project}}
 	\fancyfoot[R]{\thepage\ of \pageref{LastPage}}
 	
 	
 	%------------------------------------------------------------------
 	% Begin Technical Content
 	
-	
+	\input{introduction}
 	
 	%------------------------------------------------------------------
 	% Print Bibliography
