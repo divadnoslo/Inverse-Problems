@@ -182,7 +182,7 @@ ylabel("i")
 ax.XLim = [ax.XTick(1) - 0.5, ax.XTick(end) + 0.5];
 ax.YLim = [ax.YTick(1) - 0.5, ax.YTick(end) + 0.5];
 axis equal
-title("Recoverd Model")
+title("Recovered Model")
 colorbar(ax, "eastoutside")
 
 
@@ -242,7 +242,7 @@ ylabel("i")
 ax.XLim = [ax.XTick(1) - 0.5, ax.XTick(end) + 0.5];
 ax.YLim = [ax.YTick(1) - 0.5, ax.YTick(end) + 0.5];
 axis equal
-title("Recoverd Model")
+title("Recovered Model")
 colorbar(ax, "eastoutside")
 
 % Examine Model Error
