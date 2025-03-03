@@ -1,4 +1,4 @@
-classdef BasicImuModel
+classdef BasicImuModel < ImuInterface
     % Basic IMU Model as decribed by Groves
     
     %% Properties
@@ -25,7 +25,7 @@ classdef BasicImuModel
     % Accelerometer Dependent Properties
     properties (Dependent, Hidden)
         b_a (3,1) {isfloat, mustBeReal, mustBeFinite}
-        M_a (3,1) {isfloat, mustBeReal, mustBeFinite}
+        M_a (3,3) {isfloat, mustBeReal, mustBeFinite}
         sigma_a (3,1) {isfloat, mustBeReal, mustBeFinite}
     end
 
@@ -51,7 +51,7 @@ classdef BasicImuModel
     % Gyroscope Dependent Properties
     properties (Dependent, Hidden)
         b_g (3,1) {isfloat, mustBeReal, mustBeFinite}
-        M_g (3,1) {isfloat, mustBeReal, mustBeFinite}
+        M_g (3,3) {isfloat, mustBeReal, mustBeFinite}
         sigma_g (3,1) {isfloat, mustBeReal, mustBeFinite}
     end
 
@@ -99,24 +99,24 @@ classdef BasicImuModel
         end
 
         % Set Accelerometer Scale Factor and Misalignment
-        function obj = set.M_a(obj, M_a)
+        function obj = set.M_a(obj, M)
 
             arguments (Input)
                 obj
-                M_a (3,3) {isfloat, mustBeReal, mustBeFinite}
+                M (3,3) {isfloat, mustBeReal, mustBeFinite}
             end
 
-            obj.AccelScaleFactorErrorX = M_a(1,1);
-            obj.AccelMisalignmentXY = M_a(1,2);
-            obj.AccelMisalignmentXZ = M_a(1,3);
+            obj.AccelScaleFactorErrorX = M(1,1);
+            obj.AccelMisalignmentXY = M(1,2);
+            obj.AccelMisalignmentXZ = M(1,3);
 
-            obj.AccelMisalignmentYX = M_a(2,1);
-            obj.AccelScaleFactorErrorY = M_a(2,2);
-            obj.AccelMisalignmentYZ = M_a(2,3);
+            obj.AccelMisalignmentYX = M(2,1);
+            obj.AccelScaleFactorErrorY = M(2,2);
+            obj.AccelMisalignmentYZ = M(2,3);
 
-            obj.AccelMisalignmentZX = M_a(3,1);
-            obj.AccelMisalignmentZY = M_a(3,2);
-            obj.AccelScaleFactorErrorZ = M_a(1,1);
+            obj.AccelMisalignmentZX = M(3,1);
+            obj.AccelMisalignmentZY = M(3,2);
+            obj.AccelScaleFactorErrorZ = M(3,3);
 
         end
 
@@ -205,24 +205,24 @@ classdef BasicImuModel
         end
 
         % Set Gyroscope Scale Factor and Misalignment
-        function obj = set.M_g(obj, M_g)
+        function obj = set.M_g(obj, M)
 
             arguments (Input)
                 obj
-                M_g (3,3) {isfloat, mustBeReal, mustBeFinite}
+                M (3,3) {isfloat, mustBeReal, mustBeFinite}
             end
 
-            obj.GyroScaleFactorErrorX = M_g(1,1);
-            obj.GyroMisalignmentXY = M_g(1,2);
-            obj.GyroMisalignmentXZ = M_g(1,3);
+            obj.GyroScaleFactorErrorX = M(1,1);
+            obj.GyroMisalignmentXY = M(1,2);
+            obj.GyroMisalignmentXZ = M(1,3);
 
-            obj.GyroMisalignmentYX = M_g(2,1);
-            obj.GyroScaleFactorErrorY = M_g(2,2);
-            obj.GyroMisalignmentYZ = M_g(2,3);
+            obj.GyroMisalignmentYX = M(2,1);
+            obj.GyroScaleFactorErrorY = M(2,2);
+            obj.GyroMisalignmentYZ = M(2,3);
 
-            obj.GyroMisalignmentZX = M_g(3,1);
-            obj.GyroMisalignmentZY = M_g(3,2);
-            obj.GyroScaleFactorErrorZ = M_g(1,1);
+            obj.GyroMisalignmentZX = M(3,1);
+            obj.GyroMisalignmentZY = M(3,2);
+            obj.GyroScaleFactorErrorZ = M(3,3);
 
         end
 
