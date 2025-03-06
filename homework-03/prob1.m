@@ -4,6 +4,9 @@ clc
 
 addpath(genpath(fullfile("..", "PEIP-master", "Lib")))
 
+% Save figures as *.eps
+saveFigureAsEps = @(name, fig)(exportgraphics(fig, fullfile(pwd, "latex", "images", name)));
+
 
 %% Let's go through Example 3.1 first...
 
@@ -217,7 +220,7 @@ ax = nexttile(1);
 hold(ax, "on")
 colormap('gray')
 imagesc(reshape(m_test, 3, 3).')
-clim([-0.1 1])
+clim([-2 2])
 ax.XTick = 1 : 3;
 ax.YTick = 1 : 3;
 ax.YDir = "reverse";
@@ -233,7 +236,7 @@ ax = nexttile(2);
 hold(ax, "on")
 colormap('gray')
 imagesc(reshape(m_dagger, 3, 3).')
-clim([-0.1 1])
+clim([-2 2])
 ax.XTick = 1 : 3;
 ax.YTick = 1 : 3;
 ax.YDir = "reverse";
@@ -245,7 +248,10 @@ axis equal
 title("Recovered Model")
 colorbar(ax, "eastoutside")
 
+saveFigureAsEps("prob1_checkerboard_test.eps", fig)
+
 % Examine Model Error
 m_error = m_dagger - m_test;
 disp("Model Error")
 disp(m_error)
+
