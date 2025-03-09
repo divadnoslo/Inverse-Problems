@@ -25,7 +25,7 @@ The checkerboard test using $\bv{m}_{true}$ can be reshaped to $\bv{m}_{true} \i
 which allows for the creation of test data $\bv{d}_{true}$ and a recovered model $\bv{m}_{\dagger}$.
 
 \begin{align*}
-	\bv{d}_{true} &= G \bv{m}_true \\
+	\bv{d}_{true} &= G \bv{m}_{true} \\
 	\\
 	\bv{m}_{\dagger} &= G^{\dagger} \bv{d}_{true}
 \end{align*}
@@ -48,3 +48,14 @@ Interpreting these results, only three of nine model parameters $m_2, m_4, m_9$ 
 	\end{bmatrix}^T
 \end{align*}
 
+When examining the model resolution matrix $R_m$, it is interesting that only one diagonal value of $R_m$ is equal to one even though three model parameters where recovered perfectly as shown in figure \ref{fig: prob1 Rm}. 
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.85\textwidth]{./images/prob1_Rm.eps}
+	\caption{Checkerboard Test}
+	\label{fig: prob1 Rm}
+\end{figure}
+\FloatBarrier
+
+\textcolor{red}{There is more to analyze here, but I am a bit confused by the results right now.}

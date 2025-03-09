@@ -103,7 +103,7 @@ rm = reshape(rmDiag, 3, 3).';
 % Vizualize Model Resolution Matrix
 fig = figure("Name", "Model Resolution Matrix");
 tl = tiledlayout(1, 2, "Parent", fig);
-title(tl, "Model Resolution Matrix")
+% title(tl, "Model Resolution Matrix")
 
 ax = nexttile(1);
 hold(ax, "on")
@@ -136,6 +136,8 @@ ax.YLim = [ax.YTick(1) - 0.5, ax.YTick(end) + 0.5];
 axis equal
 title("Model Resolution Matrix Diagonals")
 colorbar(ax, "eastoutside")
+
+saveFigureAsEps("prob1_Rm.eps", fig)
 
 % Set Up Spike Test
 m_test = zeros(n, 1);

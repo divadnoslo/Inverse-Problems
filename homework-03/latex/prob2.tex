@@ -7,65 +7,70 @@
 \newpage
 \section{Problem 2}
 
-\textbf{Exercise 5 in Section 2.7}
+\textbf{Exercise 4 in Section 3.6}
 
 \subsection{Solution}
 
-Consider a polynomial with degree 19 containing 20 terms such that
+\textbf{NOTE: } \textit{I do not have any experience in seismology, please forgive any mistakes in technicalities when I try to explain this exercise in my own words. It helps me understand what is going on so I can set up the problem correctly.}
+\newline
+
+The forward problem in this exercise allows mechanical waves to propagate through a $16 \times 16$ meter grid where each square in the grid have some slowness value $s_{x,y}$ in units of \unit{\second\per\meter}. Stations around the grid record time of arrivals of the mechanical waves as they pass through one or multiple grid squares. The time it takes to pass through a path of squares is formulated below.
 
 \begin{align*}
-	y_i = a_0 + a_1 x_i + a_2 x_i^2 + \ldots + a_{19} x_i^{19}
+	t &= \int_l s\left(\bv{x}\right) dl \\
+	\\
+	&\approx \sum_{blocks} s_{block} \Delta l
 \end{align*}
 
-where elements $x_i \in \bv{x}$ and $y_i \in \bv{y}$ are sampled from $-1$ to $1$ in steps of $0.1$. This problem can be formulated as a discrete linear inverse problem of the form $G\bv{m} = \bv{d}$. The operator $G$ of size $21 \times 20$ is formed as
 
-\begin{align*}
-	G = \begin{bmatrix}
-		1 & x_1 & x_1^2 & \cdots & x_1^{19} \\
-		1 & x_2 & x_2^2 & \cdots & x_2^{19} \\
-		\vdots & \vdots & \vdots & \ddots & \vdots \\
-		1 & x_{21} & x_{21}^2 & \cdots & x_{21}^{19}
-	\end{bmatrix}
-\end{align*}
+\subsubsection{Part A - Row and Column Scans Only}
 
-and model parameters $\bv{m} \in \R^{20}$ are the polynomial coefficients. The normal equations are applied as
-
-\begin{align*}
-	\bv{m}_{L2} = \left(G^T G\right)^{-1} G^T \bv{y}
-\end{align*}
-
-which should ideally result in $a_1 = 1$ and all other coefficients equal zero. Evaluating the normal equations in \MATLAB reveal model parameters that are close but not exact to ideal as shown in figure \ref{fig: prob2 model params}. 
+$16$ row scans and $16$ column scans are utilized in this part in the exercise as shown in figure \ref{fig: prob2 row column scan viz}. 
 
 \begin{figure}[h] 
 	\centering
-	\includegraphics[width=0.45\textwidth]{./images/prob2_model_params.png}
-	\caption{Model Parameters}
-	\label{fig: prob2 model params}
+	\includegraphics[width=0.85\textwidth]{./images/prob2_partA_scans_vizualization.eps}
+	\caption{Row and Column Scan Visualization}
+	\label{fig: prob2 row column scan viz}
 \end{figure}
 \FloatBarrier
 
-While $a_1$ equals one as expected, all other terms are \textit{close to zero, but not exactly zero}. 20 coefficients are far too many for fitting a line, but the result is interesting. Figure \ref{fig: prob2 residuals} shows the residuals in the L2 regression which take an interesting shape.
+This results in a total of $m = 32$ measurements. In an effort to estimate the slowness of each square in the grid, this results in a number of $n = 256$ model parameters. 
+
+\begin{align*}
+	\bv{d} \in \R^{32},\,\,\,\,\,\bv{m} \in \R^{256},\,\,\,\,\,G \in \R^{32 \times 256}
+\end{align*}
+
+The vector of measurement observations $\bv{d}$ is organized such that
+
+\begin{align*}
+	\bv{d} = \begin{bmatrix}
+		t_{r,1} & t_{r,2} & \ldots & t_{r,16} & t_{c,1} & t_{c,2} & \ldots & t_{c,16}
+	\end{bmatrix}^T
+\end{align*}
+
+where a $r$ subscript indicates a row can and a $c$ subscript indicates a column scan. The model parameters $\bv{m}$ are organized such that
+
+\begin{align*}
+	\bv{m} = \begin{bmatrix}
+		s_{1,1} & s_{1,2} & \ldots & s_{1,16} & s_{2,1} & s_{2,2} & \ldots & s_{16,1} & \ldots & s_{16,16}
+	\end{bmatrix}^T
+\end{align*}
+
+where the first subscript indicates the row, and the second subscript indicates the column. Each row of the model operator $G$ contain the distance traveled by the mechanical wave for each square in its path. Due to the large number of elements, a color map of the zeros and ones for this part of the problem as given instead in figure \ref{fig: prob2 model operator G}.
 
 \begin{figure}[h] 
 	\centering
-	\includegraphics[width=0.8\textwidth]{./images/prob2_1.eps}
-	\caption{Data, Fitted Model, and Residuals}
-	\label{fig: prob2 residuals}
+	\includegraphics[width=0.85\textwidth]{./images/prob2_partA_model_operator_G.eps}
+	\caption{Row and Column Scan Visualization}
+	\label{fig: prob2 model operator G}
 \end{figure}
 \FloatBarrier
 
-This is an extreme example of over-fitting the data. By simple observation of the data, there are 18 extra unnecessary parameters to fit this linear trend. 
+\textbf{Subpart A}
 
-However, the ordinary least squares solution was likely not exact due to floating point error. Take note of the high condition number of $G$. 
+Per \MATLAB, the rank of G is $31$.
 
-\begin{figure}[h] 
-	\centering
-	\includegraphics[width=0.15\textwidth]{./images/prob2_cond.png}
-	\caption{Data, Fitted Model, and Residuals}
-	\label{fig: prob2 rcond}
-\end{figure}
-\FloatBarrier
-
-Any floating point error throughout the computation could be amplified by a factor of $\sim 1 \times 10^{8}$, which essentially introduces noise which our high-degree polynomial will attempt to fit, hence the over-fitting.
+\textbf{Subpart B}
 
 
