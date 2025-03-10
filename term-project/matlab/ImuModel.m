@@ -55,6 +55,17 @@ classdef ImuModel < ImuInterface
         sigma_g (3,1) {isfloat, mustBeReal, mustBeFinite}
     end
 
+    % Temperature Sensitivity Models
+    properties
+        AccelBiasTempSensitivityModel (1,1) function_handle = @(T, T0)(0)
+        AccelScaleFactorTempSensitivityModel (1,1) function_handle = @(T, T0)(0)
+        AccelMisalignmentTempSensitivityModel (1,1) function_handle = @(T, T0)(0)
+        GyroBiasTempSensitivityModel (1,1) function_handle = @(T, T0)(0)
+        GyroScaleFactorTempSensitivityModel (1,1) function_handle = @(T, T0)(0)
+        GyroMisalignmentTempSensitivityModel (1,1) function_handle = @(T, T0)(0)
+    end
+
+
     %% Methods
 
     % Constructor
@@ -283,12 +294,13 @@ classdef ImuModel < ImuInterface
     methods (Access = public)
 
         % Run Forward Model
-        function [f_b__i_b_meas, w_b__i_b_meas] = runForwardModel(obj, f_b__i_b_true, w_b__i_b_true)
+        function [f_b__i_b_meas, w_b__i_b_meas] = runForwardModel(obj, f_b__i_b_true, w_b__i_b_true, temperature)
 
             arguments (Input)
                 obj
                 f_b__i_b_true (3,:) {isfloat, mustBeReal, mustBeFinite}
                 w_b__i_b_true (3,:) {isfloat, mustBeReal, mustBeFinite}
+                temperature (1,1) {isfloat, mustBeReal, mustBeFinite}
             end
 
             arguments (Output)
@@ -304,10 +316,34 @@ classdef ImuModel < ImuInterface
                 "basicImuModel:runForwardModel:dataLengthMismatch", ...
                 "Specific force and angular velocity truth must have the same number of columns!")
 
-            f_b__i_b_meas = (eye(3) + obj.M_a) * f_b__i_b_true + obj.b_a + ...
+            b_a_temp = obj.b_a + obj.AccelBiasTempSensitivityModel(temperature) .* ones(3, 1);
+            M_a_temp = obj.M_a;
+            M_a_temp(1,1) = M_a_temp(1,1) + obj.AccelScaleFactorTempSensitivityModel(temperature);
+            M_a_temp(2,2) = M_a_temp(2,2) + obj.AccelScaleFactorTempSensitivityModel(temperature);
+            M_a_temp(3,3) = M_a_temp(3,3) + obj.AccelScaleFactorTempSensitivityModel(temperature);
+            M_a_temp(1,2) = M_a_temp(1,2) + obj.AccelMisalignmentTempSensitivityModel(temperature);
+            M_a_temp(1,3) = M_a_temp(1,3) + obj.AccelMisalignmentTempSensitivityModel(temperature);
+            M_a_temp(2,1) = M_a_temp(2,1) + obj.AccelMisalignmentTempSensitivityModel(temperature);
+            M_a_temp(2,3) = M_a_temp(2,3) + obj.AccelMisalignmentTempSensitivityModel(temperature);
+            M_a_temp(3,1) = M_a_temp(3,1) + obj.AccelMisalignmentTempSensitivityModel(temperature);
+            M_a_temp(3,2) = M_a_temp(3,2) + obj.AccelMisalignmentTempSensitivityModel(temperature);
+
+            f_b__i_b_meas = (eye(3) + M_a_temp) * f_b__i_b_true + b_a_temp + ...
                 obj.sigma_a .* randn(3, K1);
 
-            w_b__i_b_meas = (eye(3) + obj.M_g) * w_b__i_b_true + obj.b_g + ...
+            b_g_temp = obj.b_g + obj.GyroBiasTempSensitivityModel(temperature) .* ones(3, 1);
+            M_g_temp = obj.M_g;
+            M_g_temp(1,1) = M_g_temp(1,1) + obj.GyroScaleFactorTempSensitivityModel(temperature);
+            M_g_temp(2,2) = M_g_temp(2,2) + obj.GyroScaleFactorTempSensitivityModel(temperature);
+            M_g_temp(3,3) = M_g_temp(3,3) + obj.GyroScaleFactorTempSensitivityModel(temperature);
+            M_g_temp(1,2) = M_g_temp(1,2) + obj.GyroMisalignmentTempSensitivityModel(temperature);
+            M_g_temp(1,3) = M_g_temp(1,3) + obj.GyroMisalignmentTempSensitivityModel(temperature);
+            M_g_temp(2,1) = M_g_temp(2,1) + obj.GyroMisalignmentTempSensitivityModel(temperature);
+            M_g_temp(2,3) = M_g_temp(2,3) + obj.GyroMisalignmentTempSensitivityModel(temperature);
+            M_g_temp(3,1) = M_g_temp(3,1) + obj.GyroMisalignmentTempSensitivityModel(temperature);
+            M_g_temp(3,2) = M_g_temp(3,2) + obj.GyroMisalignmentTempSensitivityModel(temperature);
+
+            w_b__i_b_meas = (eye(3) + M_g_temp) * w_b__i_b_true + b_g_temp + ...
                 obj.sigma_g .* randn(3, K2);
 
         end
@@ -341,6 +377,7 @@ classdef ImuModel < ImuInterface
         end
 
     end
+
 
 end
 

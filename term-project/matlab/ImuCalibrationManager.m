@@ -56,7 +56,7 @@ classdef ImuCalibrationManager < handle
     methods (Access = public)
 
         % Create Calibration Dataset
-        function dataset = createCalibrationDataSet(obj, imu, temperature)
+        function dataset = createCalibrationDataset(obj, imu, temperature)
 
             arguments (Input)
                 obj
@@ -65,6 +65,7 @@ classdef ImuCalibrationManager < handle
             end
 
             dataset = struct();
+            dataset.temperature = temperature;
 
             % Simulate Tests
             dataset.time = 0 : (1/obj.SamplingRate) : obj.Duration;
@@ -122,7 +123,8 @@ classdef ImuCalibrationManager < handle
                 % Run IMU Forward Model
                 [f_b__i_b_meas, w_b__i_b_meas] = imu.runForwardModel(...
                     f_b__i_b_true, ...
-                    w_b__i_b_true);
+                    w_b__i_b_true, ...
+                    temperature);
 
                 % Store Test Data
                 dataset.(obj.TestNames(k)) = struct();
@@ -227,7 +229,8 @@ classdef ImuCalibrationManager < handle
 
         end
         
-        function imu = processCalibrationDataSet(obj, dataset)
+        % Process Calibration Dataset
+        function imu = processCalibrationDataset(obj, dataset)
 
             arguments (Input)
                 obj

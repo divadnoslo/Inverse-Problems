@@ -25,7 +25,7 @@ imu = ImuModel();
 %     [sigma_a_sf, sigma_a_m,  sigma_a_m; ...
 %      sigma_a_m,  sigma_a_sf, sigma_a_m; ...
 %      sigma_a_m,  sigma_a_m,  sigma_a_sf]; 
-% sigma_a_wn = 0.0;
+% sigma_a_wn = 0.05;
 % imu.sigma_a = sigma_a_wn * ones(3, 1);
 % 
 % % Set Gyroscope Parameters
@@ -37,7 +37,7 @@ imu = ImuModel();
 %     [sigma_g_sf, sigma_g_m,  sigma_g_m; ...
 %      sigma_g_m,  sigma_g_sf, sigma_g_m; ...
 %      sigma_g_m,  sigma_g_m,  sigma_g_sf]; 
-% sigma_g_wn = 0 * pi/180;
+% sigma_g_wn = 0.06 * pi/180;
 % imu.sigma_g = sigma_g_wn * ones(3, 1);
 
 % Set Accelerometer Parameters
@@ -59,7 +59,7 @@ imu.M_g = [...
 
 imuCalManager = ImuCalibrationManager();
 
-calData = imuCalManager.createCalibrationDataSet(imu);
+calData = imuCalManager.createCalibrationDataset(imu);
 % imuCalManager.plotCalibrationDataset(calData);
 
-processedImuModel = imuCalManager.processCalibrationDataSet(calData)
+processedImuModel = imuCalManager.processCalibrationDataset(calData)
