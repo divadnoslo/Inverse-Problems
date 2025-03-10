@@ -1,4 +1,4 @@
-classdef ImuCalibrationGenerator < handle
+classdef ImuCalibrationManager < handle
     % IMU Calibration Generator
     %
     %
@@ -34,7 +34,7 @@ classdef ImuCalibrationGenerator < handle
     methods
 
         % Constructor
-        function obj = ImuCalibrationGenerator(options)
+        function obj = ImuCalibrationManager(options)
 
             arguments (Input)
                 options.SamplingRate (1,1) {isfloat, mustBeReal, mustBePositive} = 100
@@ -55,6 +55,7 @@ classdef ImuCalibrationGenerator < handle
     % Public Methods
     methods (Access = public)
 
+        % Create Calibration Dataset
         function dataset = createCalibrationDataSet(obj, imu, temperature)
 
             arguments (Input)
@@ -134,6 +135,98 @@ classdef ImuCalibrationGenerator < handle
 
         end
 
+        % Plot Calibration Dataset
+        function plotCalibrationDataset(obj, dataset)
+
+            arguments (Input)
+                obj
+                dataset (1,1) {mustBeA(dataset, 'struct')}
+            end
+
+            XYZ = ["X", "Y", "Z"];
+
+            % Accelerometer Dataset Plots
+            for k = 1 : 3
+
+                fig = figure("Name", XYZ(k) + "-Axis Up/Down Accelerometer Dataset");
+                tl = tiledlayout(3, 1, "Parent", fig);
+
+                ax = nexttile(1);
+                hold(ax, "on")
+                title("X-Axis Accelerometer Measurements")
+                plot(dataset.time, dataset.("accelPos" + XYZ(k)).f_b__i_b_meas(1,:), 'r')
+                plot(dataset.time, dataset.("accelNeg" + XYZ(k)).f_b__i_b_meas(1,:), 'k')
+                xlabel("Time [sec]")
+                ylabel("[m/sec/sec]")
+                grid on
+                grid minor
+
+                ax = nexttile(2);
+                hold(ax, "on")
+                title("Y-Axis Accelerometer Measurements")
+                plot(dataset.time, dataset.("accelPos" + XYZ(k)).f_b__i_b_meas(2,:), 'g')
+                plot(dataset.time, dataset.("accelNeg" + XYZ(k)).f_b__i_b_meas(2,:), 'k')
+                xlabel("Time [sec]")
+                ylabel("[m/sec/sec]")
+                grid on
+                grid minor
+
+                ax = nexttile(3);
+                hold(ax, "on")
+                title("Z-Axis Accelerometer Measurements")
+                plot(dataset.time, dataset.("accelPos" + XYZ(k)).f_b__i_b_meas(3,:), 'b')
+                plot(dataset.time, dataset.("accelNeg" + XYZ(k)).f_b__i_b_meas(3,:), 'k')
+                xlabel("Time [sec]")
+                ylabel("[m/sec/sec]")
+                grid on
+                grid minor
+
+                linkaxes(tl.Children, 'x')
+
+            end
+
+            % Gyroscope Dataset Plots
+            for k = 1 : 3
+
+                fig = figure("Name", XYZ(k) + "-Axis Pos/Neg Gyroscope Dataset");
+                tl = tiledlayout(3, 1, "Parent", fig);
+
+                ax = nexttile(1);
+                hold(ax, "on")
+                title("X-Axis Gyroscope Measurements")
+                plot(dataset.time, 180/pi * dataset.("gyroPos" + XYZ(k)).w_b__i_b_meas(1,:), 'r')
+                plot(dataset.time, 180/pi * dataset.("gyroNeg" + XYZ(k)).w_b__i_b_meas(1,:), 'k')
+                xlabel("Time [sec]")
+                ylabel("[deg/sec]")
+                grid on
+                grid minor
+
+                ax = nexttile(2);
+                hold(ax, "on")
+                title("Y-Axis Gyroscope Measurements")
+                plot(dataset.time, 180/pi * dataset.("gyroPos" + XYZ(k)).w_b__i_b_meas(2,:), 'g')
+                plot(dataset.time, 180/pi * dataset.("gyroNeg" + XYZ(k)).w_b__i_b_meas(2,:), 'k')
+                xlabel("Time [sec]")
+                ylabel("[deg/sec]")
+                grid on
+                grid minor
+
+                ax = nexttile(3);
+                hold(ax, "on")
+                title("Z-Axis Gyroscope Measurements")
+                plot(dataset.time, 180/pi * dataset.("gyroPos" + XYZ(k)).w_b__i_b_meas(3,:), 'b')
+                plot(dataset.time, 180/pi * dataset.("gyroNeg" + XYZ(k)).w_b__i_b_meas(3,:), 'k')
+                xlabel("Time [sec]")
+                ylabel("[degsec]")
+                grid on
+                grid minor
+
+                linkaxes(tl.Children, 'x')
+
+            end
+
+        end
+        
         function imu = processCalibrationDataSet(obj, dataset)
 
             arguments (Input)
@@ -144,7 +237,7 @@ classdef ImuCalibrationGenerator < handle
             XYZ = ["X", "Y", "Z"];
             XYZM = ["XY", "XZ", "YX", "YZ", "ZX", "ZY"];
 
-            imu = BasicImuModel();
+            imu = ImuModel();
 
             % Accelerometer Fixed Bias
             for k = 1 : 3
@@ -166,20 +259,35 @@ classdef ImuCalibrationGenerator < handle
                 
                 switch XYZM(k)
                     
-                    case {"XY", "ZY"}
+                    case "XY"
                         imu.("AccelMisalignment" + XYZM(k)) = ...
                             (1 / (2 * obj.Gravity)) * mean(...
-                            dataset.("accelPos" + XYZ(2)).f_b__i_b_meas(2,:) - dataset.("accelNeg" + XYZ(2)).f_b__i_b_meas(2,:));
+                            dataset.("accelPos" + XYZ(2)).f_b__i_b_meas(1,:) - dataset.("accelNeg" + XYZ(2)).f_b__i_b_meas(1,:));
 
-                    case {"XZ", "YZ"}
+                    case "XZ"
+                        imu.("AccelMisalignment" + XYZM(k)) = ...
+                            (1 / (2 * obj.Gravity)) * mean(...
+                            dataset.("accelPos" + XYZ(3)).f_b__i_b_meas(1,:) - dataset.("accelNeg" + XYZ(3)).f_b__i_b_meas(1,:));
+
+                    case "YX"
+                        imu.("AccelMisalignment" + XYZM(k)) = ...
+                            (1 / (2 * obj.Gravity)) * mean(...
+                            dataset.("accelPos" + XYZ(1)).f_b__i_b_meas(2,:) - dataset.("accelNeg" + XYZ(1)).f_b__i_b_meas(2,:));
+
+                    case "YZ"
                         imu.("AccelMisalignment" + XYZM(k)) = ...
                             (1 / (2 * obj.Gravity)) * mean(...
                             dataset.("accelPos" + XYZ(3)).f_b__i_b_meas(2,:) - dataset.("accelNeg" + XYZ(3)).f_b__i_b_meas(2,:));
 
-                    case {"YX", "ZX"}
+                    case "ZX"
                         imu.("AccelMisalignment" + XYZM(k)) = ...
                             (1 / (2 * obj.Gravity)) * mean(...
-                            dataset.("accelPos" + XYZ(1)).f_b__i_b_meas(2,:) - dataset.("accelNeg" + XYZ(1)).f_b__i_b_meas(2,:));
+                            dataset.("accelPos" + XYZ(1)).f_b__i_b_meas(3,:) - dataset.("accelNeg" + XYZ(1)).f_b__i_b_meas(3,:));
+
+                    case "ZY"
+                        imu.("AccelMisalignment" + XYZM(k)) = ...
+                            (1 / (2 * obj.Gravity)) * mean(...
+                            dataset.("accelPos" + XYZ(2)).f_b__i_b_meas(3,:) - dataset.("accelNeg" + XYZ(2)).f_b__i_b_meas(3,:));
 
                     otherwise
                         error("Misalignment case not recognized!")
@@ -208,20 +316,35 @@ classdef ImuCalibrationGenerator < handle
                 
                 switch XYZM(k)
                     
-                    case {"XY", "ZY"}
+                    case "XY"
                         imu.("GyroMisalignment" + XYZM(k)) = ...
                             (1 / (2 * obj.SpinRate)) * mean(...
-                            dataset.("gyroPos" + XYZ(2)).w_b__i_b_meas(2,:) - dataset.("gyroNeg" + XYZ(2)).w_b__i_b_meas(2,:));
+                            dataset.("gyroPos" + XYZ(2)).w_b__i_b_meas(1,:) - dataset.("gyroNeg" + XYZ(2)).w_b__i_b_meas(1,:));
 
-                    case {"XZ", "YZ"}
+                    case "XZ"
                         imu.("GyroMisalignment" + XYZM(k)) = ...
                             (1 / (2 * obj.SpinRate)) * mean(...
-                            dataset.("gyroPos" + XYZ(3)).w_b__i_b_meas(3,:) - dataset.("gyroNeg" + XYZ(3)).w_b__i_b_meas(3,:));
+                            dataset.("gyroPos" + XYZ(3)).w_b__i_b_meas(1,:) - dataset.("gyroNeg" + XYZ(3)).w_b__i_b_meas(1,:));
 
-                    case {"YX", "ZX"}
+                    case "YX"
                         imu.("GyroMisalignment" + XYZM(k)) = ...
                             (1 / (2 * obj.SpinRate)) * mean(...
-                            dataset.("gyroPos" + XYZ(1)).w_b__i_b_meas(1,:) - dataset.("gyroNeg" + XYZ(1)).w_b__i_b_meas(1,:));
+                            dataset.("gyroPos" + XYZ(1)).w_b__i_b_meas(2,:) - dataset.("gyroNeg" + XYZ(1)).w_b__i_b_meas(2,:));
+
+                    case "YZ"
+                        imu.("GyroMisalignment" + XYZM(k)) = ...
+                            (1 / (2 * obj.SpinRate)) * mean(...
+                            dataset.("gyroPos" + XYZ(3)).w_b__i_b_meas(2,:) - dataset.("gyroNeg" + XYZ(3)).w_b__i_b_meas(2,:));
+
+                    case "ZX"
+                        imu.("GyroMisalignment" + XYZM(k)) = ...
+                            (1 / (2 * obj.SpinRate)) * mean(...
+                            dataset.("gyroPos" + XYZ(1)).w_b__i_b_meas(3,:) - dataset.("gyroNeg" + XYZ(1)).w_b__i_b_meas(3,:));
+
+                    case "ZY"
+                        imu.("GyroMisalignment" + XYZM(k)) = ...
+                            (1 / (2 * obj.SpinRate)) * mean(...
+                            dataset.("gyroPos" + XYZ(2)).w_b__i_b_meas(3,:) - dataset.("gyroNeg" + XYZ(2)).w_b__i_b_meas(3,:));
 
                     otherwise
                         error("Misalignment case not recognized!")

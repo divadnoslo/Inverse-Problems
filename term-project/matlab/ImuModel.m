@@ -1,5 +1,5 @@
-classdef BasicImuModel < ImuInterface
-    % Basic IMU Model as decribed by Groves
+classdef ImuModel < ImuInterface
+    % IMU Model as decribed by Groves
     
     %% Properties
 
@@ -71,7 +71,7 @@ classdef BasicImuModel < ImuInterface
     methods
 
         % Set Accelerometer Fixed Bias
-        function obj = set.b_a(obj, b_a)
+        function set.b_a(obj, b_a)
 
             arguments (Input)
                 obj
@@ -99,7 +99,7 @@ classdef BasicImuModel < ImuInterface
         end
 
         % Set Accelerometer Scale Factor and Misalignment
-        function obj = set.M_a(obj, M)
+        function set.M_a(obj, M)
 
             arguments (Input)
                 obj
@@ -144,7 +144,7 @@ classdef BasicImuModel < ImuInterface
         end
 
         % Set Accelerometer "sigma_a"
-        function obj = set.sigma_a(obj, sigmaVector)
+        function set.sigma_a(obj, sigmaVector)
 
             arguments (Input)
                 obj
@@ -152,8 +152,8 @@ classdef BasicImuModel < ImuInterface
             end
 
             obj.AccelWhiteNoiseOneSigmaX = sigmaVector(1);
-            obj.AccelWhiteNoiseOneSigmaY = sigmaVector(1);
-            obj.AccelWhiteNoiseOneSigmaZ = sigmaVector(1);
+            obj.AccelWhiteNoiseOneSigmaY = sigmaVector(2);
+            obj.AccelWhiteNoiseOneSigmaZ = sigmaVector(3);
 
         end
 
@@ -177,7 +177,7 @@ classdef BasicImuModel < ImuInterface
     methods
 
         % Set Gyroscope Fixed Bias
-        function obj = set.b_g(obj, b_g)
+        function set.b_g(obj, b_g)
 
             arguments (Input)
                 obj
@@ -205,7 +205,7 @@ classdef BasicImuModel < ImuInterface
         end
 
         % Set Gyroscope Scale Factor and Misalignment
-        function obj = set.M_g(obj, M)
+        function set.M_g(obj, M)
 
             arguments (Input)
                 obj
@@ -258,8 +258,8 @@ classdef BasicImuModel < ImuInterface
             end
 
             obj.GyroWhiteNoiseOneSigmaX = sigmaVector(1);
-            obj.GyroWhiteNoiseOneSigmaY = sigmaVector(1);
-            obj.GyroWhiteNoiseOneSigmaZ = sigmaVector(1);
+            obj.GyroWhiteNoiseOneSigmaY = sigmaVector(2);
+            obj.GyroWhiteNoiseOneSigmaZ = sigmaVector(3);
 
         end
 
@@ -291,6 +291,11 @@ classdef BasicImuModel < ImuInterface
                 w_b__i_b_true (3,:) {isfloat, mustBeReal, mustBeFinite}
             end
 
+            arguments (Output)
+                f_b__i_b_meas (3,:) {isfloat, mustBeReal, mustBeFinite}
+                w_b__i_b_meas (3,:) {isfloat, mustBeReal, mustBeFinite}
+            end
+
             [~, K1] = size(f_b__i_b_true);
             [~, K2] = size(w_b__i_b_true);
 
@@ -316,6 +321,11 @@ classdef BasicImuModel < ImuInterface
                 w_b__i_b_meas (3,:) {isfloat, mustBeReal, mustBeFinite}
             end
 
+            arguments (Output)
+                f_b__i_b_comp (3,:) {isfloat, mustBeReal, mustBeFinite}
+                w_b__i_b_comp (3,:) {isfloat, mustBeReal, mustBeFinite}
+            end
+
             [~, K1] = size(f_b__i_b_meas);
             [~, K2] = size(w_b__i_b_meas);
 
@@ -324,14 +334,11 @@ classdef BasicImuModel < ImuInterface
                 "basicImuModel:runInverseModel:dataLengthMismatch", ...
                 "Specific force and angular velocity measurements must have the same number of columns!")
 
-            f_b__i_b_comp = (eye(3) + obj.M_a) \ f_b__i_b_meas - obj.b_a;
+            f_b__i_b_comp = (eye(3) + obj.M_a) \ (f_b__i_b_meas - obj.b_a);
 
-            w_b__i_b_comp = (eye(3) + obj.M_g) \ w_b__i_b_meas - obj.b_g;
+            w_b__i_b_comp = (eye(3) + obj.M_g) \ (w_b__i_b_meas - obj.b_g);
 
         end
-
-
-
 
     end
 

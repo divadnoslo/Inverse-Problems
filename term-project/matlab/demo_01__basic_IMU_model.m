@@ -14,7 +14,7 @@ rng(0);
 g = 9.81;  
 
 % Instantiate Empty Class
-imu = BasicImuModel();
+imu = ImuModel();
 
 % % Set Accelerometer Parameters
 % sigma_a_fb = 10 * g * 1e-3;
@@ -41,24 +41,25 @@ imu = BasicImuModel();
 % imu.sigma_g = sigma_g_wn * ones(3, 1);
 
 % Set Accelerometer Parameters
-imu.b_a = [1; 2; 3];
+imu.b_a = [0.01; 0.02; 0.03];
 imu.M_a = [...
-    4, 0.1,  0.2; ...
-     0.3,  5, 0.4; ...
-     0.5,  0.6,  6]; 
+    0.001,   0.0001,  0.0002; ...
+    0.0003,  0.002,   0.0004; ...
+    0.0005,  0.0006,  0.003]; 
 
 % Set Gyroscope Parameters
-imu.b_g = [1; 2; 3];
+imu.b_g = [0.01; 0.02; 0.03];
 imu.M_g = [...
-    4, 0.1,  0.2; ...
-     0.3,  5, 0.4; ...
-     0.5,  0.6,  6]; 
+    0.001,   0.0001,  0.0002; ...
+    0.0003,  0.002,   0.0004; ...
+    0.0005,  0.0006,  0.003];  
 
 
 %% Create and Process Example Calibration Data
 
-imuCalGenerator = ImuCalibrationGenerator();
+imuCalManager = ImuCalibrationManager();
 
-calData = imuCalGenerator.createCalibrationDataSet(imu);
+calData = imuCalManager.createCalibrationDataSet(imu);
+% imuCalManager.plotCalibrationDataset(calData);
 
-processedImuModel = imuCalGenerator.processCalibrationDataSet(calData)
+processedImuModel = imuCalManager.processCalibrationDataSet(calData)
