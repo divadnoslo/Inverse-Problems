@@ -10,10 +10,11 @@ A key challenge for self-driving cars is solving the navigation problem which re
 
 IMUs contain accelerometers and gyroscopes generally in all three Cartesian axes which measure specific force and angular velocity respectively. These measurements are integrated to provide a PVA solution, but an IMU-only solution will drift away from truth unbounded due to the integration of sensor noise and other errors. An inertial navigation system (INS) integrates the IMU measurements and then uses GPS to provide accurate measurements of position to fuse with the IMU solution typically via a Kalman filter thus combating any position error drift. This allows for long-term accurate navigation suitable for a self-driving car traveling across the country.
 
-One particular challenge for navigation regarding self-driving cars is forming back-up modes of navigation when GPS signals are temporarily unavailable. This is especially important in urban environments where tall buildings and tunnels can cause signal blockages. Lack of GPS signals are problematic for an INS as its performance is dependent on receiving those signals, and the IMU-only solutions will drift away quickly from ground truth. Inertial-only navigation is suitable for short periods such as temporary GPS signal blockages, but the duration of a suitable inertial-only navigation is highly dependent on the quality of sensors contained within an IMU. This dilemma, among any others, motivates the need for rigorous IMU calibration and compensation.
+A driving need for navigation regarding self-driving cars is forming back-up modes of navigation when GPS signals are temporarily unavailable. This is especially important in urban environments where tall buildings and tunnels can cause signal blockages. Lack of GPS signals are problematic for an INS as its performance is dependent on receiving those signals, and the IMU-only solutions will drift away quickly from ground truth. Inertial-only navigation is suitable for short periods such as temporary GPS signal blockages, but the duration of a suitable inertial-only navigation is highly dependent on the quality of sensors contained within an IMU. This dilemma, among any others, motivates the need for rigorous IMU calibration and compensation.
 
+One particular challenge with the use of commercial-grade or automotive-grade micro-electrical mechanical system (MEMS) inertial sensors is their sensitivity to temperature. Characterizing how common error sources such as bias, scale factors, and misalignments shift in response to temperature is a tough problem which requires hours of testing per unit and is often too burdensome for applications using automotive-grade devices. 
 
-\subsection{IMU Calibration and Compensation as a Forward/Inverse Problem}
+\subsection{IMU Calibration and Compensation}
 
 Accelerometers and gyroscopes are subject to a variety of error sources such as biases, scale factor imperfections, axis misalignments, noise, and many others. IMU calibration is the process of characterizing these error sources, while compensation is the process of correcting measurements in real-time to provide the most accurate and precise measurements possible. The better these error sources are characterized, the slower that the IMU-only navigation solution will drift away from truth. 
 
@@ -31,5 +32,38 @@ where $\Delta f$ is the measurement error, $\tilde{f}$ is the specific force mea
 
 Inertial sensor errors $\Delta f$ and $\Delta \omega$ are subject to both deterministic and stochastic error and any number of contributing factors can make up these terms.
 
-Now consider an IMU which contains three accelerometers and three gyroscopes arranged to point in a standard Cartesian right-handed coordinate frame. A basic framework
+\subsubsection{Basic IMU Error Sources and Error Models}
+
+Consider an IMU which contains three accelerometers and three gyroscopes arranged to point in a standard Cartesian right-handed coordinate frame. A basic forward model framework appropriate for commercial- and automotive-grade inertial sensors is provided in \cite{groves2013principles}. 
+
+\begin{align} \label{eq: compact IMU forward error model}
+	\tilde{\bv{f}} &= \left[I + M_a\right] \bv{f} + \bv{b}_a + \bv{w}_a, \,\,\,\,\, \bv{w}_a \sim N\left(0,\,\sigma^2\right) \notag\\
+	\\
+	\tilde{\bv{\omega}} &= \left[I + M_g\right] \bv{\omega} + \bv{b}_g + \bv{w}_g \,\,\,\,\, \bv{w}_g \sim N\left(0,\,\sigma^2\right) \notag
+\end{align}
+
+In these models are bias terms $\bv{b}_a, \, \bv{b}_g \in \R^3$ for the accelerometers and gyroscopes respectively. In addition are the misalignment matrices $M_a, \, M_g \in \R^{3 \times 3}$, whose diagonal elements are scale factor error terms. The off-diagonal elements are misalignment terms which account for imperfections in the alignment of the sensing axes. All inertial sensors are also subject to noise, which is captured by terms $\bv{w}_a,\,\bv{w}_g$ which are additive zero-mean white Gaussian noise. Equation \ref{eq: expanded IMU forward error model} restates equation \ref{eq: compact IMU forward error model} in terms of all its various elements.
+
+\begin{align} \label{eq: expanded IMU forward error model}
+	\begin{bmatrix} \tilde{f}_x \\ \tilde{f}_y \\ \tilde{f}_z \end{bmatrix} &= \begin{bmatrix} 1 + s_{a,x} & m_{a,xy} & m_{a,xz} \\ m_{a,yx} & 1 + s_{a,y} & m_{a,yz} \\ m_{a,zx} & m_{a,zy} & 1 + s_{a,z} \end{bmatrix} \begin{bmatrix} f_x \\ f_y \\ f_z \end{bmatrix} + \begin{bmatrix} b_{a,x} \\ b_{a,y} \\ b_{a,z} \end{bmatrix} + \begin{bmatrix} w_{a,x} \\ w_{a,y} \\ w_{a,z} \end{bmatrix} \notag\\
+	\\
+	\begin{bmatrix} \tilde{\omega}_x \\ \tilde{\omega}_y \\ \tilde{\omega}_z \end{bmatrix} &= \begin{bmatrix} 1 + s_{g,x} & m_{g,xy} & m_{g,xz} \\ m_{g,yx} & 1 + s_{g,y} & m_{g,yz} \\ m_{g,zx} & m_{g,zy} & 1 + s_{g,z} \end{bmatrix} \begin{bmatrix} \omega_x \\ \omega_y \\ \omega_z \end{bmatrix} + \begin{bmatrix} b_{g,x} \\ b_{g,y} \\ b_{g,z} \end{bmatrix} + \begin{bmatrix} w_{g,x} \\ w_{g,y} \\ w_{g,z} \end{bmatrix} \notag
+\end{align}
+
+The goal of IMU calibration is characterize to these IMU error sources, resulting in estimates $\hat{\bv{b}}_a, \, \hat{M}_a, \, \hat{\bv{b}}_g, \, \hat{M}_g
+$ which then allows for the correction of inertial sensor measurements in real-time, which is referred to as compensation. In essence, this can be treated as the inverse model with estimated parameters. Using the estimated model parameters, inertial sensor measurements $\tilde{\bv{f}},\,\tilde{\bv{\omega}}$ are compensated to provide new measurements $\hat{\bv{f}},\,\hat{\bv{\omega}}$ per equation \ref{eq: compact IMU error inverse model}.
+
+\begin{align} \label{eq: compact IMU error inverse model}
+	\hat{\bv{f}} &= \left[I + \hat{M}_a\right]^{-1} \left(\tilde{\bv{f}} - \hat{\bv{b}}_a\right) \notag\\
+	\\
+	\hat{\bv{\omega}} &= \left[I + \hat{M}_g\right]^{-1} \left(\tilde{\bv{\omega}} - \hat{\bv{b}}_g\right) \notag\\
+\end{align}
+
+There are many more error models which are often applied to higher grade devices \cite{GeneralizedFramework} but these error models are out of scope for this work due to their difficulty to simulate. 
+
+
+\subsection{IMU Temperature Compensation}
+
+In IMU applications there is a common saying that floats around industry, "MEMS sensors are almost more useful thermometers than inertial sensing themselves!". This rings true in practice, and temperature compensation becomes a key
+
 
