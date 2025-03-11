@@ -25,13 +25,13 @@ The forward problem in this exercise allows mechanical waves to propagate throug
 
 \subsubsection{Part A - Row and Column Scans Only}
 
-$16$ row scans and $16$ column scans are utilized in this part in the exercise as shown in figure \ref{fig: prob2 row column scan viz}. 
+$16$ row scans and $16$ column scans are utilized in this part in the exercise as shown in figure \ref{fig: prob2 part A row column scan viz}. 
 
 \begin{figure}[h] 
 	\centering
 	\includegraphics[width=0.85\textwidth]{./images/prob2_partA_scans_vizualization.eps}
 	\caption{Row and Column Scan Visualization}
-	\label{fig: prob2 row column scan viz}
+	\label{fig: prob2 part A row column scan viz}
 \end{figure}
 \FloatBarrier
 
@@ -57,20 +57,72 @@ where a $r$ subscript indicates a row can and a $c$ subscript indicates a column
 	\end{bmatrix}^T
 \end{align*}
 
-where the first subscript indicates the row, and the second subscript indicates the column. Each row of the model operator $G$ contain the distance traveled by the mechanical wave for each square in its path. Due to the large number of elements, a color map of the zeros and ones for this part of the problem as given instead in figure \ref{fig: prob2 model operator G}.
+where the first subscript indicates the row, and the second subscript indicates the column. Each row of the model operator $G$ contain the distance traveled by the mechanical wave for each square in its path. Due to the large number of elements, a color map of the zeros and ones for this part of the problem as given instead in figure \ref{fig: prob2 part A model operator G}.
 
 \begin{figure}[h] 
 	\centering
 	\includegraphics[width=0.85\textwidth]{./images/prob2_partA_model_operator_G.eps}
-	\caption{Row and Column Scan Visualization}
-	\label{fig: prob2 model operator G}
+	\caption{Model Operator $G$}
+	\label{fig: prob2 part A model operator G}
 \end{figure}
 \FloatBarrier
 
-\textbf{Subpart A}
-
+\textbf{Subpart A} \newline
 Per \MATLAB, the rank of G is $31$.
+\newline
 
-\textbf{Subpart B}
+\textbf{Subpart B} \newline
+This is the environment of "$p < m$ and $p < n$", in which both the data null space and model null space are nontrivial. For this problem of $G\bv{m} = \bv{d}$, the solution $\bv{m}^\dagger$ is the minimum length least squares solution. 
+
+\begin{align*}
+	m_{\dagger} = V_p S_p^{-1} U_p^T
+\end{align*}
+
+\textcolor{red}{I do not understand what it means to "plot and interpret an element from each space and contour or otherwise display a non-zero model that fits the trivial data $Gm = d = 0$"}
+
+The model resolution matrix is provided in figure \ref{fig: prob2 part A model resolution matrix}. 
+ 
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.95\textwidth]{./images/prob2_partA_model_resolution_matrix.eps}
+	\caption{Model Resolution Matrix $R_m$}
+	\label{fig: prob2 part A model resolution matrix}
+\end{figure}
+\FloatBarrier
+
+Note that there are no diagonal elements which provide perfect model resolution. \newline
+
+\textbf{Subpart C} \newline
+
+Model parameters are computed using the \verb|pinv()| function in \MATLAB, and results are provided in figure \ref{fig: prob2 part A estimated model parameters}.
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.85\textwidth]{./images/prob2_partA_estimated_model_parameters.eps}
+	\caption{Estimated Model Parameters}
+	\label{fig: prob2 part A estimated model parameters}
+\end{figure}
+\FloatBarrier
+
+The maximum and minimum estimated slowness values are 
+
+\begin{align*}
+	s_{max} = 12.345 \, \unit{\second\per\meter} \\
+	s_{min} = 12.345 \, \unit{\second\per\meter}
+\end{align*}
+
+which imply velocities of
+
+\begin{align*}
+	v_{max} = 12.345 \, \unit{\meter\per\second} \\
+	v_{min} = 12.345 \, \unit{\meter\per\second}
+\end{align*}
+
+throughout the various square grids. The maximum velocity square is in the $i^{th}$ row and $j^{th}$. \textit{Again, I do not study seismology}, but assuming that the dinosaur bones are related to the highest velocity we expect to find in our search space, then they must be located in the square with the highest velocity value. 
+
+\textcolor{red}{The values above are dummy values. Right now I have negative slowness values which do not make physical sense unless the mechanical waves reflect off of other surfaces in the ground?} \newline
+
+\textbf{Subpart D} \newline
+\textcolor{red}{Right now I have no idea what is going on with this question. I suspect it might make sense once I understand part B.}
 
 

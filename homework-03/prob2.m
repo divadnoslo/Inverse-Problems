@@ -111,4 +111,78 @@ Up = U(1:p,1:p);
 Sp = S(1:p,1:p);
 Vp = V(:,1:p);
 
+Rm = Vp * Vp.';
+
+fig = figure("Name", "Model Resolution Matrix");
+tl = tiledlayout(1, 2, "Parent", fig);
+
+ax = nexttile(1);
+hold(ax, "on")
+colormap('gray')
+imagesc(Rm)
+clim([-0.15 0.15])
+ax.XTick = 1 : GRID_SIZE : GRID_SIZE^2;
+ax.YTick = 1 : GRID_SIZE : GRID_SIZE^2;
+ax.YDir = "reverse";
+xlabel("columns")
+ylabel("rows")
+ax.XLim = [ax.XTick(1) - 0.5, ax.XTick(end) + 0.5];
+ax.YLim = [ax.YTick(1) - 0.5, ax.YTick(end) + 0.5];
+title("Model Resolution Matrix")
+axis equal
+colorbar(ax, "eastoutside")
+
+Rm_diag = reshape(diag(Rm), [GRID_SIZE GRID_SIZE]).';
+
+ax = nexttile(2);
+hold(ax, "on")
+colormap('gray')
+imagesc(Rm_diag)
+clim([-0.15 0.15])
+ax.XTick = 0 : GRID_SIZE;
+ax.YTick = 0 : GRID_SIZE;
+ax.YDir = "reverse";
+xlabel("columns")
+ylabel("rows")
+ax.XLim = [ax.XTick(1) - 0.5, ax.XTick(end) + 0.5];
+ax.YLim = [ax.YTick(1) - 0.5, ax.YTick(end) + 0.5];
+title("Model Resolution Matrix - Diagonal Elements")
+axis equal
+colorbar(ax, "eastoutside")
+
+saveFigureAsEps("prob2_partA_model_resolution_matrix.eps", fig)
+
+% Part C - Compute the Model
 m_dagger = pinv(G) * d;
+
+[maxSlowness, maxSlownessInd] = max(m_dagger);
+[minSlowness, minSlownessInd] = min(m_dagger);
+
+maxSlownessRow = floor(maxSlownessInd / GRID_SIZE);
+maxSlownessColumn = mod(maxSlownessInd, GRID_SIZE);
+
+minSlownessRow = floor(minSlownessInd / GRID_SIZE);
+minSlownessColumn = mod(minSlownessInd, GRID_SIZE);
+
+fig = figure("Name", "Estimated Model Parameters");
+ax = gca;
+hold(ax, "on")
+colormap('gray')
+imagesc(reshape(m_dagger, [GRID_SIZE GRID_SIZE]).')
+plot(maxSlownessRow, maxSlownessColumn, 'rx', 'MarkerSize', 10)
+plot(minSlownessRow, minSlownessColumn, 'bo', 'MarkerSize', 10)
+clim([min(m_dagger) max(m_dagger)])
+ax.XTick = 0 : GRID_SIZE;
+ax.YTick = 0 : GRID_SIZE;
+ax.YDir = "reverse";
+xlabel("columns")
+ylabel("rows")
+ax.XLim = [ax.XTick(1) - 0.5, ax.XTick(end) + 0.5];
+ax.YLim = [ax.YTick(1) - 0.5, ax.YTick(end) + 0.5];
+title("Estimated Model Parameters")
+axis equal
+colorbar(ax, "eastoutside")
+legend(["Max Slowness", "Min Slowness"], "Location", "westoutside")
+
+saveFigureAsEps("prob2_partA_estimated_model_parameters.eps", fig)
+
