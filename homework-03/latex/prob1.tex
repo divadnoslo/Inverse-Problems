@@ -40,15 +40,31 @@ Recall from example 3.1 that $G \in \R^{8 \times 9}$ with rank $7$. Therefore th
 \end{figure}
 \FloatBarrier
 
-Interpreting these results, only three of nine model parameters $m_2, m_4, m_9$ were recovered with no error. The error in the recovered model, $\Delta \bv{m} \defeq \bv{m}_{\dagger} - \bv{m}_{true}$, is shown below.
+Recall that this problem is of the situation "$p < m$ and $p < n$", in which both the model and data null spaces are non-trivial and $\bv{m}_\dagger$ is the minimum length solution. The resulting model null space vector, $\bv{m}_0 \defeq \bv{m}_{true} - \bv{m}_{\dagger}$, is shown below both numerically and graphically in figure \ref{fig: prob1 model null space vector}.
 
 \begin{align*}
-	\Delta \bv{m} = \begin{bmatrix}
-		\frac{-2}{3} & 0 & \frac{2}{3} & 0 & \frac{2}{3} & \frac{-2}{3} & \frac{2}{3} & \frac{-2}{3} & 0
+	\bv{m}_0 = \begin{bmatrix}
+		\frac{2}{3} & 0 & \frac{-2}{3} & 0 & \frac{-2}{3} & \frac{2}{3} & \frac{-2}{3} & \frac{2}{3} & 0
 	\end{bmatrix}^T
 \end{align*}
 
-When examining the model resolution matrix $R_m$, it is interesting that only one diagonal value of $R_m$ is equal to one even though three model parameters where recovered perfectly as shown in figure \ref{fig: prob1 Rm}. 
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.85\textwidth]{./images/prob1_model_null_space_vector.eps}
+	\caption{Model Null Space Vector}
+	\label{fig: prob1 model null space vector}
+\end{figure}
+\FloatBarrier
+
+Notice that the sum of the model null space vector is zero. Also notice that all of the rows and columns depicted in figure \ref{fig: prob1 model null space vector} also sum to zero. The model null space vector, a.k.a. the model residual, could be restated as
+
+\begin{align*}
+	\bv{m}_0 = \sum_{i = p + 1}^{n} \alpha_i V_{.,i}
+\end{align*}
+
+where non-zero coefficients for $\alpha_i$ could create other model null space vectors. In our case we computed the minimum length solution, implying that all $\alpha_i$ coefficients are zero. The addition of this vector which resides in the model null space would have no impact on the predicted data if added to another model solution which resides in the model range space.
+
+The three perfectly recovered model parameters are $m_2,\,m_4$ and $m_9$. When examining the model resolution matrix $R_m$ from the spike test, model parameter $m_9$ is the only parameter with perfect resolution. 
 
 \begin{figure}[h] 
 	\centering
@@ -58,4 +74,5 @@ When examining the model resolution matrix $R_m$, it is interesting that only on
 \end{figure}
 \FloatBarrier
 
-\textcolor{red}{There is more to analyze here, but I am a bit confused by the results right now.}
+Model parameters $m_2,\,m_4$ are subject to "smearing" due to the limited resolution. In this situation, this could have caused us to assume that model parameters $m_2,\,m_4$ also have perfect resolution, when instead the smearing for the parameters just happened to bring these model parameters to zero.
+

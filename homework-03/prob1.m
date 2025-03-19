@@ -43,9 +43,11 @@ s_p = s(s > 1e-6);
 ratio = s_p(1) / s_p(end);
 assert(ratio < p)
 fprintf("Ratio vs. Rank: %4.3f < %d (good)\n\n", ratio, p)
+Sp = S(1:p, 1:p);
 
 % Model Null Space
-V0 = V(:, (1:n > p));
+Vp = V(:, 1:p);
+V0 = V(:, p+1:end);
 disp("Model Null Space (V0)")
 disp(V0)
 
@@ -90,7 +92,8 @@ title("Reshaped Null Space V(:,9)")
 colorbar(ax, "eastoutside")
 
 % Data Null Space
-U0 = U(:, (1:m > p));
+Up = U(:, 1:p);
+U0 = U(:, p+1:end);
 disp("Data Null Space (U0)")
 disp(U0)
 
@@ -252,8 +255,26 @@ colorbar(ax, "eastoutside")
 
 saveFigureAsEps("prob1_checkerboard_test.eps", fig)
 
-% Examine Model Error
-m_error = m_dagger - m_test;
-disp("Model Error")
-disp(m_error)
+% Examine Model Null Space Vector
+m_null = m_test - m_dagger;
+disp("Model Null Space Vector")
+disp(m_null)
 
+% Vizualize
+fig = figure("Name", "Model Null Space Vector");
+ax = gca;
+hold(ax, "on")
+colormap('gray')
+imagesc(reshape(m_null, 3, 3).')
+clim([-1 1])
+ax.XTick = 1 : 3;
+ax.YTick = 1 : 3;
+ax.YDir = "reverse";
+xlabel("j")
+ylabel("i")
+ax.XLim = [ax.XTick(1) - 0.5, ax.XTick(end) + 0.5];
+ax.YLim = [ax.YTick(1) - 0.5, ax.YTick(end) + 0.5];
+axis equal
+title("Model Null Space Vector")
+colorbar(ax, "eastoutside")
+saveFigureAsEps("prob1_model_null_space_vector.eps", fig)
