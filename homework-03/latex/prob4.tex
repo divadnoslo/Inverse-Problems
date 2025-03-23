@@ -1,0 +1,61 @@
+%----------------------------------------------------------------------
+% Problem 4
+
+\begingroup
+\allowdisplaybreaks
+
+\newpage
+\section{Problem 4}
+
+\textbf{Exercise 5 in Section 4.10}
+
+\subsection{Solution}
+
+To bias a model solution towards a particular solution $\bv{m}_0$, the objective function can be modified to be expressed accordingly below.
+
+\begin{align*}
+	\textrm{min} \twonorm{G \bv{m} - \bv{d}}^2 + \alpha^2 \twonorm{L \left(\bv{m} - \bv{m}_0 \right) }^2
+\end{align*}
+
+The expression within the minimization is a function of $f \left( \bv{m} \right)$ which can be expanded.
+
+\begin{align*}
+	f \left( \bv{m} \right) &= \twonorm{G \bv{m} - \bv{d}}^2 + \alpha^2 \twonorm{L \left(\bv{m} - \bv{m}_0 \right) }^2 \\
+	\\
+	&= \left(G \bv{m} - \bv{d} \right)^T \left(G \bv{m} - \bv{d} \right) + \alpha^2 \left( \left( L \bv{m} - L \bv{m}_0 \right)^T \left( L \bv{m} - L \bv{m}_0 \right) \right) \\
+	\\
+	&= \left(\bv{m}^T G^T - \bv{d}^T \right) \left(G \bv{m} - \bv{d} \right) + \alpha^2 \left( \left( \bv{m}^T L^T - \bv{m}_0^T L^T \right) \left( L \bv{m} - L \bv{m}_0 \right) \right) \\
+	\\
+	&= \bv{m}^T G^T G \bv{m} - \bv{m}^T G^T \bv{d} - \bv{d}^T G \bv{m} + \bv{d}^T \bv{d} + \alpha^2 \left( \bv{m}^T L^T L \bv{m} - \bv{m}^T L^T L \bv{m}_0 - \bv{m}_0^T L^T L \bv{m} + \bv{m}_0^T L^T L \bv{m}_0 \right)
+\end{align*}
+
+Notice that terms $\bv{m}^T G^T \bv{d}$ and $\bv{d}^T G \bv{m}$ both evaluate to the same scalar value which means the can be added together to the term $2 \bv{m}^T G^T \bv{d}$. \textcolor{red}{Can the same be said for the other terms?... let's assume they do for now...}
+
+\begin{align*}
+	f \left( \bv{m} \right) &= \bv{m}^T G^T G \bv{m} - 2 \bv{m}^T G^T \bv{d} \bv{d}^T \bv{d} + \alpha^2 \left( \bv{m}^T L^T L \bv{m} - 2 \bv{m}_0^T L^T L \bv{m} + \bv{m}_0^T L^T L \bv{m}_0 \right) \\
+	\\
+	&= \bv{m}^T G^T G \bv{m} - 2 \bv{m}^T G^T \bv{d} + \bv{d}^T \bv{d} + \alpha^2 \bv{m}^T L^T L \bv{m} - 2 \alpha^2 \bv{m}_0^T L^T L \bv{m} + \alpha^2 \bv{m}_0^T L^T L \bv{m}_0
+\end{align*}
+
+To solve for the minimum, we must set the gradient of $\nabla f \left( \bv{m} \right) = \bv{0}$. This leads to the following expression below. 
+
+\begin{align*}
+	\nabla f \left( \bv{m} \right) = 2 G^T G \bv{m} - 2 G^T \bv{d} + 2 \alpha^2 L^T L \bv{m} - 2 \alpha^2 L^T L \bv{m}_0 = \bv{0} \\
+	\\
+	G^T G \bv{m} + \alpha^2 L^T L \bv{m} &= G^T \bv{d} + \alpha^2 L^T L \bv{m}_0
+\end{align*}
+
+This expression can be expanded into matrix form resulting in a linear system of equations. 
+
+\begin{align*}
+	\begin{bmatrix} G^T & \alpha L^T \end{bmatrix} \begin{bmatrix} G \\ \alpha L \end{bmatrix} \bv{m} = \begin{bmatrix} G^T & \alpha^2 L^T L \end{bmatrix} \begin{bmatrix} \bv{d} \\ \bv{m}_0 \end{bmatrix}
+\end{align*}
+
+The normal equations and model solution are also expressed as:
+
+\begin{align*}
+	\left(G^T G + \alpha^2 L^T L \right) \bv{m} &= G^T \bv{d} + \alpha^2 L^T L \bv{m}_0 \\
+	\\
+	\bv{m} &= \left(G^T G + \alpha^2 L^T L \right)^{-1} \left( G^T \bv{d} + \alpha^2 L^T L \bv{m}_0 \right)
+\end{align*}
+
