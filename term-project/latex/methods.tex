@@ -1,0 +1,152 @@
+%----------------------------------------------------------------------
+% Methods
+
+\begingroup
+\allowdisplaybreaks
+
+\section{Methods}
+
+ Consider an IMU under test strapped down to a three axis rotational test bed. The rotational test bed provides measurements of angular position and angular rate along each test axis. As exemplar hardware, the unit under test will be a STIM 300 IMU from Safran and the 210C Series Three Axis Position and Rate Table System from Ideal Aerosmith.
+
+
+\subsection{STIM 300 IMU Specifications} \label{sec: stim 300 imu specifications}
+ 
+The STIM 300 IMU, henceforth referred to as the unit under test (UUT), provides measurements of specific force and angular velocity. While the true forward model is unknown, it will be assumed that the basic forward model in equation \ref{eq: compact IMU forward error model} will sufficiently model the error of the device. Assuming the UUT uses the "10g" variant of accelerometers, bounds for the accelerometer-related model parameters are provided in table 5-5 of the specification sheet \cite{stim300SpecSheet}.
+ 
+\begin{itemize}
+	\item Bias: $|b_a| \leq 7.5 \times 10^{-3} g$
+	\item Scale Factor Error : $|s_a| \leq 200 \,\textrm{ppm}$
+	\item Misalignment: $|m_a| \leq 1\times 10^{-3} \,\textrm{rad}$ 
+\end{itemize}
+ 
+The accelerometers are also subject to zero-mean Gaussian noise with a velocity random walk (VRW) value of $0.07 \unit{\meter\per\second\per\sqrt\hertz}$, which translates to a $\sigma_a = \frac{0.07}{60} = 0.0012 \unit{\meter\per\second}$. Likewise, \cite{stim300SpecSheet} provides bounds for the gyroscopes in table 5-3. 
+ 
+\begin{itemize}
+	\item Bias: $|b_g| \leq 250 \unit{\degree\per\hour}$
+	\item Scale Factor Error : $|s_g| \leq 500 \,\textrm{ppm}$
+	\item Misalignment: $|m_g| \leq 1\times 10^{-3} \,\textrm{rad}$ 
+\end{itemize}
+ 
+The gyroscopes are also subject to zero-mean Gaussian noise with an angle random walk (ARW) value of $0.15 \unit{\degree\per\sqrt\hour}$ which translates to a $\sigma_g = \frac{0.15}{60}\frac{\pi}{180} = 4.3633 \times 10^{-5} \unit{\radian\per\second}$.
+
+For simulation purposes, true model parameters will be selected within these bounds in later sections.
+
+
+\subsection{2013C Series Position and Rate Table System Specifications}
+
+The 2013C Series Position and Rate Table System, henceforth referred to as the test bed, is able to spin and point the UUT in all directions within Cartesian space. Per the specification sheet \cite{threeAxisRateTableTable}, each axis can spin with an accuracy of $\pm 0.001\%$ and point with an accuracy $\pm 15 \unit{\arcsecond}$.
+
+For simplicity, let measurements of angular position and angular rate be subject to zero-mean Gaussian noise with the inaccuracies above interpreted as the 3-sigma bound. For additionally simplicity, assume that each Euler angle representing the attitude of the UUT is subject to the root mean square of the test bed's pointing accuracy.
+
+\begin{align*}
+	\sigma_\theta \approx \sqrt{\frac{1}{3} 15 \unit{\arcsecond} + \frac{1}{3} 15 \unit{\arcsecond} + \frac{1}{3} 15 \unit{\arcsecond}} = 8.5 \times 10^{-3} \,\unit{\radian}
+\end{align*}
+
+Likewise, assume that the resulting angular velocity measurements of the UUT derived from the test bed are the root mean square of the test bed's spinning accuracy when spinning at $100 \unit{\degree\per\sec}$.
+
+\begin{align*}
+	\sigma_\omega \approx \frac{\pi}{180} \sqrt{\frac{1}{3} 0.1 + \frac{1}{3} 0.1 + \frac{1}{3} 0.1} = 9.6 \times 10^{-3} \,\unit{\radian\per\second}
+\end{align*}
+
+The approximations are very crude, however expressing their uncertainty as a Normal distribution allows for a consistent application in the methods ahead.
+
+
+\subsection{Formulating IMU Calibration as a Discrete Linear Inverse Problem}
+
+Recall the system of equations from equation \ref{eq: expanded IMU forward error model} and consider the $x$-axis accelerometer measurements.
+
+\begin{align*}
+	\tilde{f}_x = \left(1 + s_{a,x}\right) f_x + m_{a,xy} f_y + m_{a,xz} f_z + b_{a,x}
+\end{align*}
+
+The equation above can be re-arranged to express the model parameters as a function of the accelerometer error $\Delta f = \tilde{f} - f$. 
+
+\begin{align*}
+	\tilde{f}_x &= \left(1 + s_{a,x}\right) f_x + m_{a,xy} f_y + m_{a,xz} f_z + b_{a,x} \\
+	\\
+	\tilde{f}_x - f_x &= b_{a,x} + s_{a,x} f_x + m_{a,xy} f_y + m_{a,xz} f_z \\
+	\\
+	\Delta f_x &= b_{a,x} + s_{a,x} f_x + m_{a,xy} f_y + m_{a,xz} f_z
+\end{align*}
+
+Assuming that both the UUT and test bed are able to provide synchronized measurements at the same sampling frequency, a series of measurements from these devices can be organized into another system of equations. 
+
+\begin{align} \label{eq: expanded block of GM = d}
+	\begin{bmatrix} 
+		1 & f_x[1] & f_y[1] & f_z[1] \\ 1 & f_x[2] & f_y[2] & f_z[2] \\ \vdots & \vdots & \vdots & \vdots \\ 1 & f_x[m] & f_y[m] & f_z[m]
+	\end{bmatrix} \begin{bmatrix}
+		b_{a,x} \\ s_{a,x} \\ m_{a,xy} \\ m_{a,xz}
+	\end{bmatrix} = \begin{bmatrix}
+		\Delta f_x[1] \\ \Delta f_x[2] \\ \vdots \\ \Delta f_x[m]
+	\end{bmatrix}
+\end{align}
+
+This system of equations can be expressed in the form $G\bv{m} = \bv{d}$. In this expression, "true" measurements $f_x[n],\,f_y[n],\,f_z[n]$ within the model operator are computed from measurements provided by the test bed, and the model parameters are various calibration factors from the forward model. Elements of the data vector $\bv{d}$ are the difference of the UUT output and test bed output such that $d[n] = \tilde{f}_x[n] - f_x[n]$.
+
+Let $F$ be the model operator demonstrated by equation \ref{eq: expanded block of GM = d}.
+
+\begin{align} \label{eq: F}
+	F &\defeq \begin{bmatrix} 
+		1 & f_x[1] & f_y[1] & f_z[1] \\ 1 & f_x[2] & f_y[2] & f_z[2] \\ \vdots & \vdots & \vdots & \vdots \\ 1 & f_x[m] & f_y[m] & f_z[m]
+	\end{bmatrix},\,\,\, F \in \R^{m \times 4}
+\end{align}
+
+Then, the discrete linear inverse problem for all accelerometer calibration parameters given in equation \ref{eq: expanded IMU forward error model} can defined below.
+
+\begin{align} \label{eq: Gm = d for all accel parameters}
+	G_a \bv{m}_a &= \bv{d}_a \notag\\
+	\\
+	\begin{bmatrix} 
+		F & 0_{m \times 4} & 0_{m \times 4} \\
+		0_{m \times 4} & F & 0_{m \times 4} \\
+		0_{m \times 4} & 0_{m \times 4} & F \\
+	\end{bmatrix} \begin{bmatrix}
+		b_{a,x} \\ s_{a,x} \\ m_{a,xy} \\ m_{a,xz} \\ b_{a,y} \\ m_{a,yz} \\ s_{a,y} \\ m_{a,yz} \\ b_{a,z} \\ m_{a,zx} \\ m_{a,zy} \\ s_{a,z}
+	\end{bmatrix} &= \begin{bmatrix}
+		\Delta f_x[1] \\ \vdots \\ \Delta f_x[m] \\ \\ \Delta f_y[1] \\ \vdots \\ \Delta f_y[m] \\ \\ \Delta f_z[1] \\ \vdots \\ \Delta f_z[m]
+	\end{bmatrix} \notag
+\end{align}
+
+Likewise, let $\Omega$ be the model operator for all gyroscope measurements specific to one sensor. 
+
+\begin{align} \label{eq: Omega}
+	\Omega &\defeq \begin{bmatrix} 
+		1 & \omega_x[1] & \omega_y[1] & \omega_z[1] \\ 1 & \omega_x[2] & \omega_y[2] & \omega_z[2] \\ \vdots & \vdots & \vdots & \vdots \\ 1 & \omega_x[m] & \omega_y[m] & \omega_z[m]
+	\end{bmatrix},\,\,\, \Omega \in \R^{m \times 4}
+\end{align}
+
+Then, the discrete linear inverse problem for all gyroscope calibration parameters given in equation \ref{eq: expanded IMU forward error model} can defined below.
+
+\begin{align} \label{eq: Gm = d for all gyro parameters}
+	G_g \bv{m}_g &= \bv{d}_g \notag\\
+	\\
+	\begin{bmatrix} 
+		\Omega & 0_{m \times 4} & 0_{m \times 4} \\
+		0_{m \times 4} & \Omega & 0_{m \times 4} \\
+		0_{m \times 4} & 0_{m \times 4} & \Omega \\
+	\end{bmatrix} \begin{bmatrix}
+		b_{g,x} \\ s_{g,x} \\ m_{g,xy} \\ m_{g,xz} \\ b_{g,y} \\ m_{g,yz} \\ s_{g,y} \\ m_{g,yz} \\ b_{g,z} \\ m_{g,zx} \\ m_{g,zy} \\ s_{g,z}
+	\end{bmatrix} &= \begin{bmatrix}
+		\Delta \omega_x[1] \\ \vdots \\ \Delta \omega_x[m] \\ \\ \Delta \omega_y[1] \\ \vdots \\ \Delta \omega_y[m] \\ \\ \Delta \omega_z[1] \\ \vdots \\ \Delta \omega_z[m]
+	\end{bmatrix} \notag
+\end{align}
+
+
+\subsection{Model Covariance and Weighted Least Squares}
+
+As previously mentioned, one major benefit of systematic calibration vs. traditional calibration is the ability to produce some measure of uncertainty with respect to the estimated calibration model parameters. Given that inertial sensors are provided some terms within their specification sheets to determine a zero-mean Gaussian distribution for sensor noise, each discrete linear inverse problems formulated in the previous section can be reweighted to form weighted least squares problems. This provides an opportunity to examine how well the calibration model parameters fit the collected data by performing a $\chi^2$ test and examining the resulting p-values.
+
+For example, consider the system of equations for the accelerometer calibration parameters defined in equation \ref{eq: Gm = d for all accel parameters}. Recall, the standard deviation for accelerometer sensor noise is provided in section \ref{sec: stim 300 imu specifications}. This system of equations can be reweighted accordingly below.
+
+\begin{align}
+	W &= \sigma_a I \notag \notag\\
+	\notag\\
+	W G_a \bv{m}_a &= W \bv{d}_a \\
+	\notag\\
+	G_{a,w} \bv{m}_a &= \bv{d}_{a,w} \notag
+\end{align}
+
+
+
+
+

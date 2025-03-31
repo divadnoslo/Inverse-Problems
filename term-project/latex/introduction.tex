@@ -6,15 +6,15 @@
 
 \section{Introduction}
 
-A key challenge for self-driving cars is solving the navigation problem which requires determining the position, velocity, and attitude (PVA) of the vehicle. Navigation is an interdisciplinary field of engineering which seeks to fuse measurements of many different sensors such as inertial measurement units (IMUs), global positioning system (GPS) receivers, and a large variety of other sensors to form a PVA solution. It is crucial to not only formulate a navigation solution but also to track the uncertainty of that solution, which can play an important role in decision-making and risk-assessment for autonomous self-driving vehicle applications.
+A key challenge for self-driving cars is autonomous navigation. Autonomous navigation fuses the inputs of multiple sensors to formulate a position, velocity, and attitude (PVA) solution for the vehicle of interest. Common navigation sensors include inertial measurement units (IMUs), global positioning system (GPS) receivers, odometers, magnetometers, radars, LiDAR, cameras, and many others. It is crucial to not only formulate a navigation solution but also to track the uncertainty of that solution, which can play an important role in decision-making and risk-assessment for autonomous self-driving vehicle applications.
 
-IMUs contain accelerometers and gyroscopes generally in all three Cartesian axes which measure specific force and angular velocity respectively. These measurements are integrated to provide a PVA solution, but an IMU-only solution will drift away from truth unbounded due to the integration of sensor noise and other errors. An inertial navigation system (INS) integrates the IMU measurements and then uses GPS to provide accurate measurements of position to fuse with the IMU solution typically via a Kalman filter thus combating any position error drift. This allows for long-term accurate navigation suitable for a self-driving car traveling across the country.
+IMUs generally contain three accelerometers and gyroscopes pointing in all three Cartesian axes which measure specific force and angular velocity respectively. These measurements are integrated to provide a PVA solution, but an IMU-only solution will drift away from truth unbounded due to the integration of sensor noise and other errors \cite{groves2013principles}. An inertial navigation system (INS) integrates the IMU measurements and then uses GPS to provide accurate measurements of position to fuse with the IMU solution typically via a Kalman filter thus combating any position error drift. This allows for long-term accurate navigation suitable for a self-driving car traveling long distances.
 
 A driving need for navigation regarding self-driving cars is forming back-up modes of navigation when GPS signals are temporarily unavailable. This is especially important in urban environments where tall buildings and tunnels can cause signal blockages. Lack of GPS signals are problematic for an INS as its performance is dependent on receiving those signals, and the IMU-only solutions will drift away quickly from ground truth. Inertial-only navigation is suitable for short periods such as temporary GPS signal blockages, but the duration of a suitable inertial-only navigation is highly dependent on the quality of sensors contained within an IMU. This dilemma, among any others, motivates the need for rigorous IMU calibration and compensation.
 
 One particular challenge with the use of commercial-grade or automotive-grade micro-electrical mechanical system (MEMS) inertial sensors is their sensitivity to temperature. Characterizing how common error sources such as bias, scale factors, and misalignments shift in response to temperature is a tough problem which requires hours of testing per unit and is often too burdensome for applications using automotive-grade devices. 
 
-\subsection{IMU Calibration and Compensation}
+\subsection{Defining Sensor Error}
 
 Accelerometers and gyroscopes are subject to a variety of error sources such as biases, scale factor imperfections, axis misalignments, noise, and many others. IMU calibration is the process of characterizing these error sources, while compensation is the process of correcting measurements in real-time to provide the most accurate and precise measurements possible. The better these error sources are characterized, the slower that the IMU-only navigation solution will drift away from truth. 
 
@@ -31,6 +31,8 @@ where $\Delta f$ is the measurement error, $\tilde{f}$ is the specific force mea
 \end{align*}
 
 Inertial sensor errors $\Delta f$ and $\Delta \omega$ are subject to both deterministic and stochastic error and any number of contributing factors can make up these terms.
+
+There are many procedures available to calibrate inertial sensors such as \cite{ImprovedIMUCalibrationProcedures} which require high-precision equipment to point and spin inertial sensors at known directions or quantities to separate measurement truth from measurement error.
 
 \subsubsection{Basic IMU Error Sources and Error Models}
 
@@ -56,14 +58,72 @@ $ which then allows for the correction of inertial sensor measurements in real-t
 \begin{align} \label{eq: compact IMU error inverse model}
 	\hat{\bv{f}} &= \left[I + \hat{M}_a\right]^{-1} \left(\tilde{\bv{f}} - \hat{\bv{b}}_a\right) \notag\\
 	\\
-	\hat{\bv{\omega}} &= \left[I + \hat{M}_g\right]^{-1} \left(\tilde{\bv{\omega}} - \hat{\bv{b}}_g\right) \notag\\
+	\hat{\bv{\omega}} &= \left[I + \hat{M}_g\right]^{-1} \left(\tilde{\bv{\omega}} - \hat{\bv{b}}_g\right) \notag
 \end{align}
 
-There are many more error models which are often applied to higher grade devices \cite{GeneralizedFramework} but these error models are out of scope for this work due to their difficulty to simulate. 
+
+\subsubsection{Traditional Inertial Sensor Calibration}
+
+IMUs are traditionally calibrated on some sort of a rotational test bed. These rotation test beds are able to point and spin inertial sensors at known quantities with sharp precision. To calibrate accelerometers, the IMU is aligned in various poses along the local gravity vector at that location, therefore a gravity survey within an inertial test laboratory is critical. To calibrate gyroscopes, the IMU is spun at known speeds.
+
+For example hardware, consider the 2103C Series Three-Axis Position and Rate Table System from Ideal Aerosmith shown in figure \ref{fig: three axis rate table example}. 
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.65\textwidth]{./images/three_axis_rate_table_example.png}
+	\caption{2103C Series Three Axis Position and Rate Table System}
+	\label{fig: three axis rate table example}
+\end{figure}
+\FloatBarrier
+
+Traditional calibration comprises of twelve tests with six for the accelerometers and six for the gyroscopes. In each test, the IMU is stationary for accelerometer tests and spinning at a constant speed for gyroscope tests. Each test is completed for a set amount of time, usually 60 seconds, and the measurements are averaged. Table \ref{tab: traditional_calibration_tests} lists the six tests as well as the quantity for each averaged test result.
+
+\begin{table}[h!]
+	\centering
+	\begin{tabular}{|p{7cm}|p{7cm}|}
+		\hline
+		\textbf{Accelerometer Tests} & \textbf{Gyroscope Tests} \\ \hline
+		\begin{itemize}
+			\item Point X-Axis Up $\left(\bar{\bv{f}}^{\,+\textrm{x}}\right)$
+			\item Point X-Axis Down $\left(\bar{\bv{f}}^{\,-\textrm{x}}\right)$
+			\item Point Y-Axis Up $\left(\bar{\bv{f}}^{\,+\textrm{y}}\right)$
+			\item Point Y-Axis Down $\left(\bar{\bv{f}}^{\,-\textrm{y}}\right)$
+			\item Point Z-Axis Up $\left(\bar{\bv{f}}^{\,+\textrm{z}}\right)$
+			\item Point Z-Axis Down $\left(\bar{\bv{f}}^{\,-\textrm{z}}\right)$
+		\end{itemize}
+		&
+		\begin{itemize}
+			\item Positive Spin about X-Axis $\left(\bar{\bv{\omega}}^{\,+\textrm{x}}\right)$
+			\item Negative Spin about X-Axis $\left(\bar{\bv{\omega}}^{\,-\textrm{x}}\right)$
+			\item Positive Spin about Y-Axis $\left(\bar{\bv{\omega}}^{\,+\textrm{y}}\right)$
+			\item Negative Spin about Y-Axis $\left(\bar{\bv{\omega}}^{\,-\textrm{y}}\right)$
+			\item Positive Spin about Z-Axis $\left(\bar{\bv{\omega}}^{\,+\textrm{z}}\right)$
+			\item Negative Spin about Z-Axis $\left(\bar{\bv{\omega}}^{\,-\textrm{z}}\right)$
+		\end{itemize} \\ \hline
+	\end{tabular}
+	\caption{Traditional IMU Calibration Tests}
+	\label{tab: traditional_calibration_tests}
+\end{table}
+\FloatBarrier
+
+As an example from equation \ref{eq: expanded IMU forward error model}, the accelerometer bias $\bv{b}_a$ can be solved from the collected test data.
+
+\begin{align} 
+	\bv{b}_a = \begin{bmatrix} b_{a,x} \\ \\ b_{a,y} \\ \\ b_{a,z} \end{bmatrix} = \frac{1}{2} \begin{bmatrix}
+		\bar{f}^{\,+\textrm{x}}_{x} + \bar{f}^{\,-\textrm{x}}_{x} \\
+		\\
+		\bar{f}^{\,+\textrm{y}}_{y} + \bar{f}^{\,-\textrm{y}}_{y} \\
+		\\
+		\bar{f}^{\,+\textrm{z}}_{z} + \bar{f}^{\,-\textrm{z}}_{z}
+	\end{bmatrix}
+\end{align}
+
+All model in parameters in equation \ref{eq: expanded IMU forward error model} can be solved in a similar manner, which have all been listed in section \ref{sec: traditional imu calibration post-processing}.
 
 
-\subsection{IMU Temperature Compensation}
+\subsection{Beyond Traditional IMU Calibration}
 
-In IMU applications there is a common saying that floats around industry, "MEMS sensors are almost more useful thermometers than inertial sensing themselves!". This rings true in practice, and temperature compensation becomes a key
+While traditional calibration methods have proven successful over the past several decades, there is a push within the navigation community to move to systematic calibration methods \cite{s16060940}. It is difficult to estimate more model parameters with the same limited dynamics, and the piece-meal approach to post-processing IMU calibration data is cumbersome and complicated. Additionally, traditional means of calibration do not provide any sort of measure of uncertainty which many navigation algorithms, i.e., Kalman filters, require for any sort of state estimation.
 
+Therefore, this paper aims to investigate systematic IMU calibration through the lens of inverse problem techniques. \textcolor{red}{Come back here and tell everyone what you ended up doing.}
 

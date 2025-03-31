@@ -1,0 +1,89 @@
+%----------------------------------------------------------------------
+% Appedix
+
+\begingroup
+\allowdisplaybreaks
+
+\section{Appendix}
+
+\subsection{Traditional IMU Calibration Post-Processing} \label{sec: traditional imu calibration post-processing}
+
+From equation \ref{eq: expanded IMU forward error model} and collected test data listed in table \ref{tab: traditional_calibration_tests}, the accelerometer bias $\bv{b}_a$ can be solved from the collected test data.
+
+\begin{align} \label{eq: traditional accel bias computation}
+	\bv{b}_a = \begin{bmatrix} b_{a,x} \\ \\ b_{a,y} \\ \\ b_{a,z} \end{bmatrix} = \frac{1}{2} \begin{bmatrix}
+		\bar{f}^{\,+\textrm{x}}_{x} + \bar{f}^{\,-\textrm{x}}_{x} \\
+		\\
+		\bar{f}^{\,+\textrm{y}}_{y} + \bar{f}^{\,-\textrm{y}}_{y} \\
+		\\
+		\bar{f}^{\,+\textrm{z}}_{z} + \bar{f}^{\,-\textrm{z}}_{z}
+	\end{bmatrix}
+\end{align}
+
+Likewise, accelerometer scale factor terms within the quantity $M_a$ can also be computed, where $g$ is the magnitude of the accelerometer due to gravity at that specific location at the inertial test laboratory.
+
+\begin{align} \label{eq: traditional accel scale factor computation}
+	\bv{s}_a = \begin{bmatrix} s_{a,x} \\ \\ s_{a,y} \\ \\ s_{a,z} \end{bmatrix} = \frac{1}{2g} \begin{bmatrix}
+		\bar{f}^{\,+\textrm{x}}_{x} - \bar{f}^{\,-\textrm{x}}_{x} \\
+		\\
+		\bar{f}^{\,+\textrm{y}}_{y} - \bar{f}^{\,-\textrm{y}}_{y} \\
+		\\
+		\bar{f}^{\,+\textrm{z}}_{z} - \bar{f}^{\,-\textrm{z}}_{z}
+	\end{bmatrix} - 1
+\end{align}
+
+Accelerometer misalignment uses off-axis terms from each collected test where each misalignment term is computed separately.
+
+\begin{align} \label{eq: traditional accel misalignment computation}
+	m_{a,xy} &= \frac{1}{2g} \left( \bar{f}^{\,+\textrm{y}}_{x} - \bar{f}^{\,-\textrm{y}}_{x} \right) \notag\\
+	\notag\\
+	m_{a,xz} &= \frac{1}{2g} \left( \bar{f}^{\,+\textrm{z}}_{x} - \bar{f}^{\,-\textrm{z}}_{x} \right) \notag\\
+	\notag\\
+	m_{a,yx} &= \frac{1}{2g} \left( \bar{f}^{\,+\textrm{x}}_{y} - \bar{f}^{\,-\textrm{x}}_{y} \right) \notag\\
+	\\
+	m_{a,yz} &= \frac{1}{2g} \left( \bar{f}^{\,+\textrm{z}}_{y} - \bar{f}^{\,-\textrm{z}}_{y} \right) \notag\\
+	\notag\\
+	m_{a,zx} &= \frac{1}{2g} \left( \bar{f}^{\,+\textrm{x}}_{z} - \bar{f}^{\,-\textrm{x}}_{z} \right) \notag\\
+	\notag\\
+	m_{a,zy} &= \frac{1}{2g} \left( \bar{f}^{\,+\textrm{y}}_{z} - \bar{f}^{\,-\textrm{y}}_{z} \right) \notag
+\end{align}
+
+Also from equation \ref{eq: expanded IMU forward error model}, the gyroscope bias $\bv{b}_g$ can be solved from the collected test data.
+
+\begin{align} \label{eq: traditional gyro bias computation}
+	\bv{b}_g = \begin{bmatrix} b_{a,x} \\ \\ b_{a,y} \\ \\ b_{a,z} \end{bmatrix} = \frac{1}{2} \begin{bmatrix}
+		\bar{\omega}^{\,+\textrm{x}}_{x} + \bar{\omega}^{\,-\textrm{x}}_{x} \\
+		\\
+		\bar{\omega}^{\,+\textrm{y}}_{y} + \bar{\omega}^{\,-\textrm{y}}_{y} \\
+		\\
+		\bar{\omega}^{\,+\textrm{z}}_{z} + \bar{\omega}^{\,-\textrm{z}}_{z}
+	\end{bmatrix}
+\end{align}
+
+Gyroscope scale factor terms within the quantity $M_g$ can also be computed, where $\omega_{\textrm{test}}$ is the magnitude of the accelerometer due to gravity at that specific location at the inertial test laboratory.
+
+\begin{align} \label{eq: traditional gyro scale factor computation}
+	\bv{s}_g = \begin{bmatrix} s_{g,x} \\ \\ s_{g,y} \\ \\ s_{g,z} \end{bmatrix} = \frac{1}{2\omega_{\textrm{test}}} \begin{bmatrix}
+		\bar{\omega}^{\,+\textrm{x}}_{x} - \bar{\omega}^{\,-\textrm{x}}_{x} \\
+		\\
+		\bar{\omega}^{\,+\textrm{y}}_{y} - \bar{\omega}^{\,-\textrm{y}}_{y} \\
+		\\
+		\bar{\omega}^{\,+\textrm{z}}_{z} - \bar{\omega}^{\,-\textrm{z}}_{z}
+	\end{bmatrix} - 1
+\end{align}
+
+Gyroscope misalignment uses off-axis terms from each collected test where each misalignment term is computed separately.
+
+\begin{align} \label{eq: traditional gyro misalignment computation}
+	m_{g,xy} &= \frac{1}{2\omega_{\textrm{test}}} \left( \bar{\omega}^{\,+\textrm{y}}_{x} - \bar{\omega}^{\,-\textrm{y}}_{x} \right) \notag\\
+	\notag\\
+	m_{g,xz} &= \frac{1}{2\omega_{\textrm{test}}} \left( \bar{\omega}^{\,+\textrm{z}}_{x} - \bar{\omega}^{\,-\textrm{z}}_{x} \right) \notag\\
+	\notag\\
+	m_{g,yx} &= \frac{1}{2\omega_{\textrm{test}}} \left( \bar{\omega}^{\,+\textrm{x}}_{y} - \bar{\omega}^{\,-\textrm{x}}_{y} \right) \notag\\
+	\\
+	m_{g,yz} &= \frac{1}{2\omega_{\textrm{test}}} \left( \bar{\omega}^{\,+\textrm{z}}_{y} - \bar{\omega}^{\,-\textrm{z}}_{y} \right) \notag\\
+	\notag\\
+	m_{g,zx} &= \frac{1}{2\omega_{\textrm{test}}} \left( \bar{\omega}^{\,+\textrm{x}}_{z} - \bar{\omega}^{\,-\textrm{x}}_{z} \right) \notag\\
+	\notag\\
+	m_{g,zy} &= \frac{1}{2\omega_{\textrm{test}}} \left( \bar{\omega}^{\,+\textrm{y}}_{z} - \bar{\omega}^{\,-\textrm{y}}_{z} \right) \notag
+\end{align}

@@ -72,48 +72,97 @@ classdef ImuCalibrationManager < handle
             K = length(dataset.time);
             for k = 1 : length(obj.TestNames)
 
-                % Initialize
-                f_b__i_b_true = zeros(3, K);
-                w_b__i_b_true = zeros(3, K);
+                % Table Poses
+                C_x_up = Ry(-90 * pi/180);
+                C_x_down = Ry(90 * pi/180);
+                C_y_up = Rx(90 * pi/180);
+                C_y_down = Rx(-90 * pi/180);
+                C_z_up = Rx(pi);
+                C_z_down = eye(3);
+
+                % Gravity
+                g = [0; 0; -obj.Gravity];
 
                 % Simulate Perfect Test
                 switch obj.TestNames(k)
 
                     case "accelPosX"
-                        f_b__i_b_true(1,:) = obj.Gravity * ones(1, K);
+                        f_b__i_b_true = repmat(C_x_up * g, 1, K);
+                        w_b__i_b_true = zeros(3, K);
+                        euler = cumtrapz(w_b__i_b_true, 2);
+                        C = euler2dcm(euler(1,:), euler(2,:), euler(3, :));
 
                     case "accelNegX"
-                        f_b__i_b_true(1,:) = -1 * obj.Gravity * ones(1, K);
+                        f_b__i_b_true = repmat(C_x_down * g, 1, K);
+                        w_b__i_b_true = zeros(3, K);
+                        euler = cumtrapz(w_b__i_b_true, 2);
+                        C = euler2dcm(euler(1,:), euler(2,:), euler(3, :));
 
                     case "accelPosY"
-                        f_b__i_b_true(2,:) = obj.Gravity * ones(1, K);
+                        f_b__i_b_true = repmat(C_y_up * g, 1, K);
+                        w_b__i_b_true = zeros(3, K);
+                        euler = cumtrapz(w_b__i_b_true, 2);
+                        C = euler2dcm(euler(1,:), euler(2,:), euler(3, :));
 
                     case "accelNegY"
-                        f_b__i_b_true(2,:) = -1 * obj.Gravity * ones(1, K);
+                        f_b__i_b_true = repmat(C_y_down * g, 1, K);
+                        w_b__i_b_true = zeros(3, K);
+                        euler = cumtrapz(w_b__i_b_true, 2);
+                        C = euler2dcm(euler(1,:), euler(2,:), euler(3, :));
 
                     case "accelPosZ"
-                        f_b__i_b_true(3,:) = obj.Gravity * ones(1, K);
+                        f_b__i_b_true = repmat(C_z_up * g, 1, K);
+                        w_b__i_b_true = zeros(3, K);
+                        euler = cumtrapz(w_b__i_b_true, 2);
+                        C = euler2dcm(euler(1,:), euler(2,:), euler(3, :));
 
                     case "accelNegZ"
-                        f_b__i_b_true(3,:) = -1 * obj.Gravity * ones(1, K);
+                        f_b__i_b_true = repmat(C_z_down * g, 1, K);
+                        w_b__i_b_true = zeros(3, K);
+                        euler = cumtrapz(w_b__i_b_true, 2);
+                        C = euler2dcm(euler(1,:), euler(2,:), euler(3, :));
 
                     case "gyroPosX"
+                        w_b__i_b_true = zeros(3, K);
                         w_b__i_b_true(1,:) = obj.SpinRate * ones(1, K);
+                        euler = cumtrapz(w_b__i_b_true, 2);
+                        C = euler2dcm(euler(1,:), euler(2,:), euler(3, :));
+                        f_b__i_b_true = pagemtimes(C, C_x_up * g);
 
                     case "gyroNegX"
-                        w_b__i_b_true(1,:) = -1 * obj.SpinRate * ones(1, K);
+                        w_b__i_b_true = zeros(3, K);
+                        w_b__i_b_true(1,:) = -obj.SpinRate * ones(1, K);
+                        euler = cumtrapz(w_b__i_b_true, 2);
+                        C = euler2dcm(euler(1,:), euler(2,:), euler(3, :));
+                        f_b__i_b_true = pagemtimes(C, C_x_up * g);
 
                     case "gyroPosY"
+                        w_b__i_b_true = zeros(3, K);
                         w_b__i_b_true(2,:) = obj.SpinRate * ones(1, K);
+                        euler = cumtrapz(w_b__i_b_true, 2);
+                        C = euler2dcm(euler(1,:), euler(2,:), euler(3, :));
+                        f_b__i_b_true = pagemtimes(C, C_y_up * g);
 
                     case "gyroNegY"
-                        w_b__i_b_true(2,:) = -1 * obj.SpinRate * ones(1, K);
+                        w_b__i_b_true = zeros(3, K);
+                        w_b__i_b_true(2,:) = -obj.SpinRate * ones(1, K);
+                        euler = cumtrapz(w_b__i_b_true, 2);
+                        C = euler2dcm(euler(1,:), euler(2,:), euler(3, :));
+                        f_b__i_b_true = pagemtimes(C, C_y_up * g);
 
                     case "gyroPosZ"
+                        w_b__i_b_true = zeros(3, K);
                         w_b__i_b_true(3,:) = obj.SpinRate * ones(1, K);
+                        euler = cumtrapz(w_b__i_b_true, 2);
+                        C = euler2dcm(euler(1,:), euler(2,:), euler(3, :));
+                        f_b__i_b_true = pagemtimes(C, C_z_up * g);
 
                     case "gyroNegZ"
-                        w_b__i_b_true(3,:) = -1 * obj.SpinRate * ones(1, K);
+                        w_b__i_b_true = zeros(3, K);
+                        w_b__i_b_true(3,:) = -obj.SpinRate * ones(1, K);
+                        euler = cumtrapz(w_b__i_b_true, 2);
+                        C = euler2dcm(euler(1,:), euler(2,:), euler(3, :));
+                        f_b__i_b_true = pagemtimes(C, C_z_up * g);
 
                     otherwise
                         error("Test not recognized!")
@@ -132,6 +181,7 @@ classdef ImuCalibrationManager < handle
                 dataset.(obj.TestNames(k)).w_b__i_b_true = w_b__i_b_true;
                 dataset.(obj.TestNames(k)).f_b__i_b_meas = f_b__i_b_meas;
                 dataset.(obj.TestNames(k)).w_b__i_b_meas = w_b__i_b_meas;
+                dataset.(obj.TestNames(k)).C = C;
 
             end
 

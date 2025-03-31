@@ -2,6 +2,10 @@ close all
 clear
 clc
 
+% Save figures as *.eps
+saveFigureAsEps = @(name, fig)(exportgraphics(fig, fullfile("..", "latex", "images", name)));
+
+
 %% Demo 02: Temperature Effects
 
 % Sample Temperatures
@@ -69,3 +73,5 @@ xlabel("Temperature [deg C]")
 ylabel("[m/sec/sec]")
 grid on
 grid minor
+saveFigureAsEps("ideal_bias_response_to_temperature.eps", fig)
+

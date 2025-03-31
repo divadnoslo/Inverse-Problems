@@ -62,4 +62,4 @@ imuCalManager = ImuCalibrationManager();
 calData = imuCalManager.createCalibrationDataset(imu);
 % imuCalManager.plotCalibrationDataset(calData);
 
-processedImuModel = imuCalManager.processCalibrationDataset(calData)
+processedImuModel = imuCalManager.processCalibrationDataset(calData);
