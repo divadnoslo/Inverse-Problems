@@ -32,23 +32,23 @@ The gyroscopes are also subject to zero-mean Gaussian noise with an angle random
 For simulation purposes, true model parameters will be selected within these bounds in later sections.
 
 
-\subsection{2013C Series Position and Rate Table System Specifications}
-
-The 2013C Series Position and Rate Table System, henceforth referred to as the test bed, is able to spin and point the UUT in all directions within Cartesian space. Per the specification sheet \cite{threeAxisRateTableTable}, each axis can spin with an accuracy of $\pm 0.001\%$ and point with an accuracy $\pm 15 \unit{\arcsecond}$.
-
-For simplicity, let measurements of angular position and angular rate be subject to zero-mean Gaussian noise with the inaccuracies above interpreted as the 3-sigma bound. For additionally simplicity, assume that each Euler angle representing the attitude of the UUT is subject to the root mean square of the test bed's pointing accuracy.
-
-\begin{align*}
-	\sigma_\theta \approx \sqrt{\frac{1}{3} 15 \unit{\arcsecond} + \frac{1}{3} 15 \unit{\arcsecond} + \frac{1}{3} 15 \unit{\arcsecond}} = 8.5 \times 10^{-3} \,\unit{\radian}
-\end{align*}
-
-Likewise, assume that the resulting angular velocity measurements of the UUT derived from the test bed are the root mean square of the test bed's spinning accuracy when spinning at $100 \unit{\degree\per\sec}$.
-
-\begin{align*}
-	\sigma_\omega \approx \frac{\pi}{180} \sqrt{\frac{1}{3} 0.1 + \frac{1}{3} 0.1 + \frac{1}{3} 0.1} = 9.6 \times 10^{-3} \,\unit{\radian\per\second}
-\end{align*}
-
-The approximations are very crude, however expressing their uncertainty as a Normal distribution allows for a consistent application in the methods ahead.
+%\subsection{2013C Series Position and Rate Table System Specifications}
+%
+%The 2013C Series Position and Rate Table System, henceforth referred to as the test bed, is able to spin and point the UUT in all directions within Cartesian space. Per the specification sheet \cite{threeAxisRateTableTable}, each axis can spin with an accuracy of $\pm 0.001\%$ and point with an accuracy $\pm 15 \unit{\arcsecond}$.
+%
+%For simplicity, let measurements of angular position and angular rate be subject to zero-mean Gaussian noise with the inaccuracies above interpreted as the 3-sigma bound. For additionally simplicity, assume that each Euler angle representing the attitude of the UUT is subject to the root mean square of the test bed's pointing accuracy.
+%
+%\begin{align*}
+%	\sigma_\theta \approx \sqrt{\frac{1}{3} 15 \unit{\arcsecond} + \frac{1}{3} 15 \unit{\arcsecond} + \frac{1}{3} 15 \unit{\arcsecond}} = 8.5 \times 10^{-3} \,\unit{\radian}
+%\end{align*}
+%
+%Likewise, assume that the resulting angular velocity measurements of the UUT derived from the test bed are the root mean square of the test bed's spinning accuracy when spinning at $100 \unit{\degree\per\sec}$.
+%
+%\begin{align*}
+%	\sigma_\omega \approx \frac{\pi}{180} \sqrt{\frac{1}{3} 0.1 + \frac{1}{3} 0.1 + \frac{1}{3} 0.1} = 9.6 \times 10^{-3} \,\unit{\radian\per\second}
+%\end{align*}
+%
+%The approximations are very crude, however expressing their uncertainty as a Normal distribution allows for a consistent application in the methods ahead.
 
 
 \subsection{Formulating IMU Calibration as a Discrete Linear Inverse Problem}
@@ -146,7 +146,61 @@ For example, consider the system of equations for the accelerometer calibration 
 	G_{a,w} \bv{m}_a &= \bv{d}_{a,w} \notag
 \end{align}
 
+The model covariance matrix for the accelerometer parameters is given in equation \ref{eq: accel model covariance}.
+
+\begin{align} \label{eq: accel model covariance}
+	\Cov{\bv{m}_{L2}} = \left(G_{a,w}^T G_{a,w}\right)^{-1}
+\end{align}
+
+From this, the 95\% confidence bounds for the L2 regression solution $\bv{m}_{L2}$ are given below.
+
+\begin{align}
+	\bv{m}_{L2} \pm 1.96 \textrm{diag}\left(\Cov{\bv{m}_{L2}}\right)^{\frac{1}{2}}
+\end{align}
+
+Additionally, the $\chi^2$ test may be formed to compute a p-value, allowing for another quantitative measure to determine how well the model fits the provided data. The $\chi^2$ statistic is formed according to equation \ref{eq: chi-squared statistic}. 
+
+\begin{align} \label{eq: chi-squared statistic}
+	\chi^2_{\textrm{obs}} = \sum_{i}^{m} \frac{\left(d_i - \left(G \bv{m}_{L2}\right)_i\right)^2}{\sigma^2_i}
+\end{align}
 
 
+\subsection{Simulating Calibration Data and Model Parameters}
 
+Rotational motion on the test bed will be simulated by developing a true sequence of angular velocities $\bv{\omega}$ across time $t$ experienced by the UUT. The attitude of the UUT, represented by the direction cosine matrix $C\left(t\right)$, will be integrated in discrete steps such that the $k^{\textrm{th}}$ step in the sequence is 
+
+\begin{align}
+	C\left(t_k\right) = C_0 \prod_{i = 1}^k e^{\left[\bv{\omega}\left(t_i\right) \times\right] \Delta t}
+\end{align}  
+
+where $\left[\bv{\omega}\left(t_i\right) \times\right]$ is a skew-symmetric matrix and $\Delta t$ is the time step. While the test bed rotates, the accelerometers will each be measuring components of the normal force from the test bed resulting from the acceleration due to gravity $g$. For each time step $k$, the true specific force quantity is given below.
+
+\begin{align}
+	\bv{f}\left(t_k\right) = C\left(t_k\right) \begin{bmatrix} 0 \\ 0 \\ g \end{bmatrix}
+\end{align}
+
+In the simulation, it will be assumed that quantities $\bv{\omega}$ and $\bv{f}$ will be available through measurement outputs of the test bed itself. Measurements of these quantities from the UUT will be corrupted with measurement error according to equations \ref{eq: expanded IMU forward error model}. The values of the model parameters are recorded in table \ref{tab: UUT simulated model parameters} and are selected with reasonable orders of magnitude as discussed in section \ref{sec: stim 300 imu specifications}. 
+
+\begin{table}[h!]
+	\centering
+	\begin{tabular}{|p{4cm}|p{3.5cm}|p{3.5cm}|}
+		\hline
+		\textbf{Model Parameter} & \textbf{Accel Value} & \textbf{Gyro Value} \\ \hline
+		Fixed Bias X & $0 \,\unit{\meter\per\second\squared}$ & $0 \,\unit{\radian\per\second}$ \\ \hline
+		Fixed Bias Y & $0 \,\unit{\meter\per\second\squared}$ & $0 \,\unit{\radian\per\second}$ \\ \hline
+		Fixed Bias Z & $0 \,\unit{\meter\per\second\squared}$ & $0 \,\unit{\radian\per\second}$ \\ \hline
+		Scale Factor Error X & $0 \,\textrm{ppm}$ & $0 \,\textrm{ppm}$ \\ \hline
+		Scale Factor Error Y & $0 \,\textrm{ppm}$ & $0 \,\textrm{ppm}$ \\ \hline
+		Scale Factor Error Z & $0 \,\textrm{ppm}$ & $0 \,\textrm{ppm}$ \\ \hline
+		Misalignment XY & $0 \,\unit{\milli\radian}$ & $0 \,\unit{\milli\radian}$ \\ \hline
+		Misalignment XZ & $0 \,\unit{\milli\radian}$ & $0 \,\unit{\milli\radian}$ \\ \hline
+		Misalignment YX & $0 \,\unit{\milli\radian}$ & $0 \,\unit{\milli\radian}$ \\ \hline
+		Misalignment YZ & $0 \,\unit{\milli\radian}$ & $0 \,\unit{\milli\radian}$ \\ \hline
+		Misalignment ZX & $0 \,\unit{\milli\radian}$ & $0 \,\unit{\milli\radian}$ \\ \hline
+		Misalignment ZY & $0 \,\unit{\milli\radian}$ & $0 \,\unit{\milli\radian}$ \\ \hline
+	\end{tabular}
+	\caption{UUT Simulated Model Parameters}
+	\label{tab: UUT simulated model parameters}
+\end{table}
+\FloatBarrier
 
