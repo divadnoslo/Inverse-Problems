@@ -2,6 +2,9 @@ close all
 clear
 clc
 
+% Save figures as *.eps
+saveFigureAsEps = @(name, fig)(exportgraphics(fig, fullfile("..", "latex", "images", name)));
+
 
 %% Idea 01: Rate Table Batched Estimation
 
@@ -85,7 +88,7 @@ dt = 1 / Fs;
 t_segment = 0 : dt : 1;
 K = length(t_segment);
 
-A = (2*pi) * 45 * pi/180;
+A = (2*pi) * 15 * pi/180;
 curve = A * sin(2*pi*t_segment);
 
 w_b__i_b_true = zeros(3, 3*K);
@@ -100,38 +103,53 @@ dcm = euler2dcm(euler(1,:), euler(2,:), euler(3,:));
 
 f_b__i_b_true = squeeze(pagemtimes(dcm, g));
 
+
+%% Create IMU Measurements
+
+[f_b__i_b_meas, w_b__i_b_meas] = imu.runForwardModel(f_b__i_b_true, w_b__i_b_true, 21);
+
+
+%% Vizualize 
+
 % Vizualize Angular Velocity
 fig = figure("Name", "Angular Velocity Profile");
 tl = tiledlayout(3, 1, "Parent", fig);
 title(tl, "Angular Velocity Profile")
 ax = nexttile(1);
 hold(ax, "on")
-plot(t, 180/pi * w_b__i_b_true(1,:), 'r')
+plot(t, 180/pi * w_b__i_b_true(1,:), 'k', 'LineWidth', 2)
+plot(t, 180/pi * w_b__i_b_meas(1,:), 'r')
 title("\omega_x")
 xlabel("Time [sec]")
 ylabel("[deg/sec]")
 xlim([t(1) t(end)])
 grid on
 grid minor
+legend(["Test Bed", "UUT"], "Location", "eastoutside")
 ax = nexttile(2);
 hold(ax, "on")
-plot(t, 180/pi * w_b__i_b_true(2,:), 'g')
+plot(t, 180/pi * w_b__i_b_true(2,:), 'k', 'LineWidth', 2)
+plot(t, 180/pi * w_b__i_b_meas(2,:), 'g')
 title("\omega_y")
 xlabel("Time [sec]")
 ylabel("[deg/sec]")
 xlim([t(1) t(end)])
 grid on
 grid minor
+legend(["Test Bed", "UUT"], "Location", "eastoutside")
 ax = nexttile(3);
 hold(ax, "on")
-plot(t, 180/pi * w_b__i_b_true(3,:), 'b')
+plot(t, 180/pi * w_b__i_b_true(3,:), 'k', 'LineWidth', 2)
+plot(t, 180/pi * w_b__i_b_meas(3,:), 'b')
 title("\omega_z")
 xlabel("Time [sec]")
 ylabel("[deg/sec]")
 xlim([t(1) t(end)])
 grid on
 grid minor
+legend(["Test Bed", "UUT"], "Location", "eastoutside")
 linkaxes(tl.Children, 'x')
+saveFigureAsEps("SAM_angular_velocity_profile.eps", fig)
 
 % Vizualize Euler Angle Profile
 fig = figure("Name", "Euler Angle Profile");
@@ -165,6 +183,7 @@ xlim([t(1) t(end)])
 grid on
 grid minor
 linkaxes(tl.Children, 'x')
+saveFigureAsEps("SAM_euler_angle_profile.eps", fig)
 
 % Vizualize Specific Force Profile
 fig = figure("Name", "Specific Force Profile");
@@ -172,37 +191,39 @@ tl = tiledlayout(3, 1, "Parent", fig);
 title(tl, "Specific Force Profile")
 ax = nexttile(1);
 hold(ax, "on")
-plot(t, f_b__i_b_true(1,:), 'r')
+plot(t, f_b__i_b_true(1,:), 'k', 'LineWidth', 2)
+plot(t, f_b__i_b_meas(1,:), 'r')
 title("f_x")
 xlabel("Time [sec]")
 ylabel("[m/sec/sec]")
 xlim([t(1) t(end)])
 grid on
 grid minor
+legend(["Test Bed", "UUT"], "Location", "eastoutside")
 ax = nexttile(2);
 hold(ax, "on")
-plot(t, f_b__i_b_true(2,:), 'g')
+plot(t, f_b__i_b_true(2,:), 'k', 'LineWidth', 2)
+plot(t, f_b__i_b_meas(2,:), 'g')
 title("f_y")
 xlabel("Time [sec]")
 ylabel("[m/sec/sec]")
 xlim([t(1) t(end)])
 grid on
 grid minor
+legend(["Test Bed", "UUT"], "Location", "eastoutside")
 ax = nexttile(3);
 hold(ax, "on")
-plot(t, f_b__i_b_true(3,:), 'b')
+plot(t, f_b__i_b_true(3,:), 'k', 'LineWidth', 2)
+plot(t, f_b__i_b_meas(3,:), 'b')
 title("f_z")
 xlabel("Time [sec]")
 ylabel("[m/sec/sec]")
 xlim([t(1) t(end)])
 grid on
 grid minor
+legend(["Test Bed", "UUT"], "Location", "eastoutside")
 linkaxes(tl.Children, 'x')
-
-
-%% Create IMU Measurements
-
-[f_b__i_b_meas, w_b__i_b_meas] = imu.runForwardModel(f_b__i_b_true, w_b__i_b_true, 21);
+saveFigureAsEps("SAM_specific_force_profile.eps", fig)
 
 
 %% Create Accelerometer Inverse Problem
@@ -225,46 +246,6 @@ Gw = W * G;
 dw = W * d;
 
 
-%% L2 Regression
-
-% L2 Regression
-m_L2 = (Gw.' * Gw) \ (Gw.' * dw);
-
-% L2 Model Regression Error
-m_error = m_L2 - m_accel_true;
-
-% Model Covariance
-C = inv(Gw.' * Gw);
-
-% 95% Confidence Bounds
-conf95 = 1.96 * sqrt(diag(C));
-
-% Print Results to Table
-results = array2table([...
-    m_accel_true, ...
-    m_L2, ...
-    conf95, ...
-    m_error]);
-results.Properties.VariableNames = {...
-    'TrueModel', ...
-    'L2RegressionModel', ...
-    'Confidence95Bound', ...
-    'L2ModelError'};
-results.Properties.RowNames = {...
-    'AccelFixedBiasX', ...
-    'AccelScaleFactorErrorX', ...
-    'AccelMisalignmentXY', ...
-    'AccelMisalignmentXZ', ...
-    'AccelFixedBiasY', ...
-    'AccelMisalignmentYX', ...
-    'AccelScaleFactorErrorY', ...
-    'AccelMisalignmentYZ', ...
-    'AccelFixedBiasZ', ...
-    'AccelMisalignmentZX', ...
-    'AccelMisalignmentZY', ...
-    'AccelScaleFactorErrorZ'};
-
-
 %% SVD
 
 % Is G full rank?
@@ -281,6 +262,7 @@ Vp = V(:,1:p);
 
 % Generalized Inverse Solution
 m_svd = Vp * inv(Sp) * Up.' * d;
+m_error = m_svd - m_accel_true;
 
 % Model Resolution
 Rm = Vp.' * Vp;
@@ -290,9 +272,40 @@ diag(Rm);
 Rd = Up.' * Up;
 diag(Rd);
 
-% Add to Results
-results.SvdModel = m_svd;
-results.SvdModelError = m_svd - m_accel_true;
+% Print Results to Table
+results = array2table([...
+    m_accel_true, ...
+    m_svd, ...
+    m_error]);
+results.Properties.VariableNames = {...
+    'TrueModel', ...
+    'ModelParameters', ...
+    'ModelError'};
+results.Properties.RowNames = {...
+    'AccelFixedBiasX', ...
+    'AccelScaleFactorErrorX', ...
+    'AccelMisalignmentXY', ...
+    'AccelMisalignmentXZ', ...
+    'AccelFixedBiasY', ...
+    'AccelMisalignmentYX', ...
+    'AccelScaleFactorErrorY', ...
+    'AccelMisalignmentYZ', ...
+    'AccelFixedBiasZ', ...
+    'AccelMisalignmentZX', ...
+    'AccelMisalignmentZY', ...
+    'AccelScaleFactorErrorZ'};
+
+% Plot Singular Values
+fig = figure("Name", "SVD Singular Values");
+ax = gca;
+hold(ax, "on")
+semilogy(1:n, diag(S), 'bo')
+title("Accelerometer Singular Values")
+xlabel("Singular Values")
+ylabel("s_i")
+grid on
+grid minor
+saveFigureAsEps("SAM_accel_singular_values.eps", fig)
 
 
 %% Display Results
@@ -317,43 +330,52 @@ hold(ax, "on")
 bh = bar(...
     ax, ...
     removecats(params(b)), ...
-    [results.TrueModel(b).'; results.L2RegressionModel(b).'; results.SvdModel(b).'].');
+    [results.TrueModel(b).'; results.ModelParameters(b).'].');
 title("Fixed Biases")
+ylabel("[m/sec/sec]")
 grid on
 grid minor
+legend(["Truth", "Estimate"], "Location", "eastoutside")
 
 ax = nexttile(2);
 hold(ax, "on")
 bar(...
     ax, ...
     removecats(params(sf)), ...
-    [results.TrueModel(sf).'; results.L2RegressionModel(sf).'; results.SvdModel(sf).'].')
+    1e6 * [results.TrueModel(sf).'; results.ModelParameters(sf).'].')
 title("Scale Factor Errors")
+ylabel("[ppm]")
 grid on
 grid minor
+legend(["Truth", "Estimate"], "Location", "eastoutside")
 
 ax = nexttile(3);
 hold(ax, "on")
 bar(...
     ax, ...
     removecats(params(ma)), ...
-    [results.TrueModel(ma).'; results.L2RegressionModel(ma).'; results.SvdModel(ma).'].')
+    1e3 * [results.TrueModel(ma).'; results.ModelParameters(ma).'].')
 title("Misalignment Terms")
+ylabel("[m-rad]")
 grid on
 grid minor
+legend(["Truth", "Estimate"], "Location", "eastoutside")
 
-% 95% Confidence Bounds
-fig = figure("Name", "Model Parameter Confidence Bounds");
+saveFigureAsEps("SAM_accel_model_parameters.eps", fig)
+
+% Model Parameter Error
+fig = figure("Name", "Model Parameter Error");
 tl = tiledlayout(3, 1, "Parent", fig);
-title(tl, "Accelerometer Calibration 95% Confidence Bounds")
+title(tl, "Accelerometer Parameter Error")
 
 ax = nexttile(1);
 hold(ax, "on")
 bh = bar(...
     ax, ...
     removecats(params(b)), ...
-    results.Confidence95Bound(b));
+    results.ModelError(b));
 title("Fixed Biases")
+ylabel("[m/sec/sec]")
 grid on
 grid minor
 
@@ -362,8 +384,9 @@ hold(ax, "on")
 bar(...
     ax, ...
     removecats(params(sf)), ...
-    results.Confidence95Bound(sf))
+    1e6 * results.ModelError(sf))
 title("Scale Factor Errors")
+ylabel("[ppm]")
 grid on
 grid minor
 
@@ -372,8 +395,63 @@ hold(ax, "on")
 bar(...
     ax, ...
     removecats(params(ma)), ...
-    results.Confidence95Bound(ma))
+    1e3 * results.ModelError(ma))
 title("Misalignment Terms")
+ylabel("[m-rad]")
+grid on
+grid minor
+saveFigureAsEps("SAM_accel_model_error.eps", fig)
+
+
+%% L2 Regression
+
+% L2 Regression
+m_L2 = (Gw.' * Gw) \ (Gw.' * dw);
+
+% L2 Model Regression Error
+m_error = m_L2 - m_accel_true;
+
+% Model Covariance
+C = inv(Gw.' * Gw);
+
+% 95% Confidence Bounds
+conf95 = 1.96 * sqrt(diag(C));
+
+% Vizualize
+fig = figure("Name", "95 Confidence Bounds");
+tl = tiledlayout(3, 1, "Parent", fig);
+title(tl, "95%% Confidence Bounds")
+
+ax = nexttile(1);
+hold(ax, "on")
+bh = bar(...
+    ax, ...
+    removecats(params(b)), ...
+    conf95(b));
+title("Fixed Biases")
+ylabel("[deg/sec]")
 grid on
 grid minor
 
+ax = nexttile(2);
+hold(ax, "on")
+bar(...
+    ax, ...
+    removecats(params(sf)), ...
+    1e6 * conf95(sf))
+title("Scale Factor Errors")
+ylabel("[ppm]")
+grid on
+grid minor
+
+ax = nexttile(3);
+hold(ax, "on")
+bar(...
+    ax, ...
+    removecats(params(ma)), ...
+    conf95(ma))
+title("Misalignment Terms")
+ylabel("[rad]")
+grid on
+grid minor
+saveFigureAsEps("SAM_accel_model_95_confidence_bounds.eps", fig)

@@ -1,0 +1,22 @@
+%----------------------------------------------------------------------
+% Discussion
+
+\begingroup
+\allowdisplaybreaks
+
+\section{Discussion}
+
+Throughout this project, the biggest surprise was the inability to form a full rank model operator. This results was completely unexpected when the project began. In the first case with the traditional calibration sequence comparison, a rank of six corresponds solely to the fact six different tests were used. Because of this, it was expected that the sinusoidal motion of the calibration sequences would provide a unique observation at each time step. \textcolor{red}{I am still trying to understand why for both the single-axis motion and multi-axis motion cases, why are these model operators only of rank 12? I could use some assistance with this aspect!}
+
+One major expected benefit of moving from traditional inertial sensor calibration to systematic inertial sensor calibration was the fact that some measure of uncertainty could be established for each model parameter. It was completely unexpected that the resulting model covariance and 95\% confidence bounds are several orders of magnitude above the error achieved by the generalized inverse solution. Perhaps this is related to the fact that the model operator matrices themselves were not full rank. \textcolor{red}{I could really use some help understanding why this is the case, I suspect that something done along the way may not be correct!}
+
+Regardless of the inability to achieve a full-rank model operator, the generalized inverse solutions were still able to closely match the true parameters used to generate the data. The residual error in the model parameters are appropriate to be considered "adaquete" for low-stakes navigation such as a hobbyist UAV. 
+
+\textcolor{red}{I have some questions about my work that I'll ask here. I'll remove these questions for the final draft of course!} 
+\begin{itemize}
+	\item \textcolor{blue}{When I performed the SVD, can I perform this on the weighted model operators, or must the SVD be performed only on the original matrices?}
+	\item \textcolor{blue}{If performing the SVD on the weighted model operators is permitted, is it still valid to perform the $\chi^2$ test and compute a p-value? If not, then why?}
+	\item \textcolor{blue}{I am considering trying out a $0^{th}$ order Tikhonov regularization as well between now and the final draft to see how it compares to the generalized inverse solution. Would you recommend adding this approach?}
+	\item \textcolor{blue}{I suspect that if I performed a Monte-Carlo experiment to compare against the computed 95\% confidence bounds, how does that work when computing the generalized inverse solution? I suppose the answer to this question depends on the answer to the first question.}
+\end{itemize}
+

@@ -1,0 +1,11 @@
+%----------------------------------------------------------------------
+% Conclusion
+
+\begingroup
+\allowdisplaybreaks
+
+\section{Conclusion}
+
+Inertial sensor calibration is an essential activity before installing an IMU into a self-driving vehicle for the purposes of navigation. Traditional calibration methods use simple tests on their respective rotational test beds and post-process the collected data in piece-meal sections to compute only the most basic of IMU error sources. In an effort to improve the status-quo, systematic calibration seeks to leverage batched estimation methods to extend model complexity and make use of all available information to estimate its model parameters. In addition, systematic calibration also establishes some measure of uncertainty for each model parameter which is useful for verifying the final calibration parameters used before vehicle application. 
+
+Systematic calibration through the lens of inverse problem techniques provides opportunities to assess the conditioning of the discrete linear inverse problems formed. When comparing the same basic models used in traditional IMU calibration, unexpected difficulty in achieving a full-rank model operator required the use of forming generalized inverse solutions. Also model resolution was preserved in the formation of the solutions, there still remains unanswered questions about the covariance that can be assigned to each model parameter. In the end, the generalized model solutions were still surprisingly close to the true model parameters used in simulation. As a result, the resulting model parameters from the generalized inverse solution are still within an "adaquete" range for low-stakes navigation such as a hobbyist UAV. 

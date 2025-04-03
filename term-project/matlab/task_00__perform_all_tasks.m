@@ -1,0 +1,12 @@
+close all
+clear
+clc
+
+
+%% Perform All Tasks
+
+task_01__traditional_cal_comparison
+task_02__accel_param_estimation
+task_03__gyro_param_estimation
+task_04__accel_param_estimation_new_dynamics
+task_05__gyro_param_estimation_new_dynamics
