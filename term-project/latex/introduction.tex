@@ -66,7 +66,7 @@ $ which then allows for the correction of inertial sensor measurements in real-t
 
 IMUs are traditionally calibrated on some sort of a rotational test bed. These rotation test beds are able to point and spin inertial sensors at known quantities with sharp precision. To calibrate accelerometers, the IMU is aligned in various poses along the local gravity vector at that location, therefore a gravity survey within an inertial test laboratory is critical. To calibrate gyroscopes, the IMU is spun at known speeds.
 
-For example hardware, consider the 2103C Series Three-Axis Position and Rate Table System from Ideal Aerosmith shown in figure \ref{fig: three axis rate table example}. 
+For example hardware, consider the 2103C Series Three-Axis Position and Rate Table System from Ideal Aerosmith \cite{threeAxisRateTableTable} shown in figure \ref{fig: three axis rate table example}. 
 
 \begin{figure}[h] 
 	\centering
@@ -125,5 +125,5 @@ All model in parameters in equation \ref{eq: expanded IMU forward error model} c
 
 While traditional calibration methods have proven successful over the past several decades, there is a push within the navigation community to move to systematic calibration methods \cite{s16060940}. It is difficult to estimate more model parameters with the same limited dynamics, and the piece-meal approach to post-processing IMU calibration data is cumbersome and complicated. Additionally, traditional means of calibration do not provide any sort of measure of uncertainty which many navigation algorithms, i.e., Kalman filters, require for any sort of state estimation.
 
-Therefore, this paper aims to investigate systematic IMU calibration through the lens of inverse problem techniques. \textcolor{red}{Come back here and tell everyone what you ended up doing.}
+Therefore, this paper aims to investigate systematic IMU calibration through the lens of inverse problem techniques. A comparison of a systematic formulation of IMU calibration will be compared to the traditional approach. Also, new motion sequences for a single-axis as well as multiple axes will be explored. In addition, the inverse problem aims to be solved via weighted least squares to then provide some measure of uncertainty for the estimated model parameters.
 
