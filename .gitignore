@@ -5,6 +5,11 @@ PEIP-Master/*
 **.asv
 **.mat
 
+# Images
+**.eps
+**.png
+**.jpeg
+
 # LaTeX Files
 **.aux
 **.lof
