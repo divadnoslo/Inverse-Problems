@@ -10,3 +10,71 @@
 \textbf{Exercise 6 in Section 7.8}
 
 \subsection{Solution}
+
+The image \verb|inpaint.png| of size $512 \times 512$ was loaded into \MATLAB and reshaped into a column vector of size $512^2$. To repair the image, a logical index of pixels which equal $255$, often called a "mask" in \MATLAB was created to identify the bad pixels. 
+
+To express the problem in the format $G\bv{m} = \bv{d}$, the model operator $G$ is simply the identity matrix with rows corresponding to bad pixels removed. Likewise, the data vector $\bv{d}$ is simply the column vector of pixels of the image with any bad pixels removed. 
+
+\begin{align*}
+	I_{good} \bv{m}_{all} = \bv{d}_{good}
+\end{align*}
+
+The initial identity matrix of size $512^2$ would have required $\approx512 GB$ to store in \MATLAB, so a sparse matrix was used instead. 
+
+To compute the total variation of the image, an $L_1$ roughing matrix was formed. The total variation formula is given below.
+
+\begin{align*}
+	\textrm{TV}_1\left(m\right) = \sum_{i = 1}^{n - 1} \sum_{j = 1}^{n - 1} |M_{i+1,j} - M_{i,j}| + |M_{i,j+1} - M_{i,j}|
+\end{align*} 
+
+To convert from image of size $m \times n$ to a column vector, the resulting $L_1$ matrix becomes size $L_1 \in \R^{(mn - m - n + 1) \times (mn)}$. The $L_1$ matrix below is an example for an image of $3 \times 3$ pixels to assist in visualizing the pattern. 
+
+\begin{align*}
+	M \in \R^{3 \times 3},\,\,\,\bv{m} \in \R^{9} \\
+	\\
+	L_1 = \begin{bmatrix}
+		-2 &  1 & 0 &  1 &  0 & 0 & 0 & 0 & 0 \\
+		 0 & -2 & 1 &  0 &  1 & 0 & 0 & 0 & 0 \\
+		 0 &  0 & 0 & -2 &  1 & 0 & 1 & 0 & 0 \\
+		 0 &  0 & 0 &  0 & -2 & 1 & 0 & 1 & 0
+	\end{bmatrix}
+\end{align*}
+
+This pattern was followed for the size of the provided image in \MATLAB, again using a sparse matrix to avoid using a large amount of memory storage. 
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.625\textwidth]{./images/l_matrix.png}
+	\caption{\MATLAB L-Matrix Formation}
+	\label{fig: prob2 l matrix}
+\end{figure}
+\FloatBarrier
+
+The provided library function \verb|admml1reg()| was used to carry out the regularization. As a test, three values of $\alpha$ were used, $\alpha_1 = 0.1,\,\alpha_2 = 1,\,\alpha_3 = 10$.
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.5\textwidth]{./images/prob2_regularized_image_low_alpha.eps}
+	\caption{Repaired Image - $\alpha = 0.1$}
+	\label{fig: low alpha}
+\end{figure}
+\FloatBarrier
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.5\textwidth]{./images/prob2_regularized_image.eps}
+	\caption{Repaired Image - $\alpha = 1$}
+	\label{fig: alpha is one}
+\end{figure}
+\FloatBarrier
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.5\textwidth]{./images/prob2_regularized_image_high_alpha.eps}
+	\caption{Repaired Image - $\alpha = 10$}
+	\label{fig: high alpha}
+\end{figure}
+\FloatBarrier
+
+For each value of alpha that was tested, it seems that the regularization was successful. Each run took approximately 10 minutes of computation time, so I decided to not test outside of these three cases.
+
