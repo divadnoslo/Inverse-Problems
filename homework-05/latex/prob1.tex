@@ -1,0 +1,159 @@
+%----------------------------------------------------------------------
+% Problem 1
+
+\begingroup
+\allowdisplaybreaks
+
+\newpage
+\section{Problem 1}
+
+\textbf{Exercise 2 in Section 9.6}
+
+\subsection{Solution}
+
+Let the instrument recording of voltage measurements sampled at $F_s = 50 \unit{\hertz}$ be $\tilde{y}\left(t\right)$ with $N = 2000$ measurements, which was provided an plotted below in figure \ref{fig: prob1 instrument recording}.
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.8\textwidth]{./images/prob1_instrument_recording.eps}
+	\caption{Instrument Recording}
+	\label{fig: prob1 instrument recording}
+\end{figure}
+\FloatBarrier
+
+The model of this recording is
+
+\begin{align*}
+	y(t) = A \sin\left( 2 \pi f_0 t + \chi^2 \right) + c + s\eta\left( t \right)
+\end{align*}
+
+with unknown parameters $A,\,f_0,\,\chi^2,\,c$ which are the amplitude, frequency, phase shift, and DC offset respectively. In addition, the scale of the standard deviation is also unknown. 
+
+For this non-linear inverse problem, the model is 
+
+\begin{align*}
+	\bv{m} = \begin{bmatrix} A \\ f_0 \\ \chi^2 \\ c \end{bmatrix}
+\end{align*}
+
+and a starting model needs to better determined from the available data. To do so, I first started out with computing and plotting the power spectral density (PSD) to find a suitable value for $f_0$ as shown in figure \ref{fig: prob1 instrument recording PSD}. 
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.8\textwidth]{./images/prob1_instrument_recording_PSD.eps}	
+	\caption{Instrument Recording PSD}
+	\label{fig: prob1 instrument recording PSD}
+\end{figure}
+\FloatBarrier
+
+The peak of the PSD occurs at frequency $f_0 \approx 0.049 \unit{\hertz}$. The other initial guesses for the other parameters were formulated accordingly below.
+
+\begin{align*}
+	c_0 &= \frac{1}{N}\sum_{i = 1}^{N} \tilde{y}\left(t_i\right) \\
+	\\
+	A_0 &= \frac{\textrm{max}\left(\tilde{y}(t) - c_0\right) - \textrm{min}\left(\tilde{y}(t) - c_0\right)}{2}
+\end{align*}
+
+The final model parameter $\chi^2$ was simply chosen by trail and error such that the initial model appeared to have a decent match as demonstrated in figure \ref{fig: prob1 initial model guess}. 
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.8\textwidth]{./images/prob1_initial_model_guess.eps}
+	\caption{Initial Model Guess}
+	\label{fig: prob1 initial model guess}
+\end{figure}
+\FloatBarrier
+
+This resulted in the initial model below.
+
+\begin{align*}
+	\bv{m}^{(0)} = \begin{bmatrix} 201.902 \\ 0.049 \\ 0.087 \\ 18.502 \end{bmatrix}
+\end{align*}
+
+To prepare for using the Levenberg-Marquardt (LM) algorithm, the Jacobian of $y(t)$ was required. The partial derivative of $y(t)$ with respect to each model parameter is below. 
+
+\begin{align*}
+	\frac{\partial y}{\partial A} &= \sin\left(2 \pi f_0 t + \chi^2 \right) \\
+	\\
+	\frac{\partial y}{\partial f_0} &= 2 \pi A t \cos\left(2 \pi f_0 t + \chi^2 \right) \\
+	\\
+	\frac{\partial y}{\partial \chi^2} &= A \cos\left(2 \pi f_0 t + \chi^2 \right) \\
+	\\
+	\frac{\partial y}{\partial c} &= 1 
+\end{align*}
+
+These partial derivatives were verified to Wolfram Alpha to ensure I didn't make a mistake in computing the partial derivatives. To formulate the Jacobian $J$ in \MATLAB, each column of $J$ corresponds to the partial derivatives above and the partial derivatives are evaluated at each value of $t_i$. This results in $J \in \R^{2000 \times 4}$. 
+
+The \verb|lm()| function from the \verb|Lib| directory was used to estimate the model. The tolerance was set to $1e-12$ with a maximum of 100 iterations. This resulted in the model below. 
+
+\begin{align*}
+	\bv{m}_{LM} = \begin{bmatrix} xxx.xxx \\ xxx.xxx \\ xxx.xxx \\ xxx.xxx \end{bmatrix}
+\end{align*}
+
+These models resulted in the following comparison to the provided data in figure \ref{fig: prob1 lm solution}. 
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.8\textwidth]{./images/prob1_lm_solution.eps}
+	\caption{Levenberg-Marquardt Solution}
+	\label{fig: prob1 lm solution}
+\end{figure}
+\FloatBarrier
+
+To estimate the standard deviation $s$ applied in the model, the residuals were computed using the model parameters from the LM solution. 
+
+\begin{align*}
+	r = \tilde{y}(t) - F(\bv{m}_{LM})
+\end{align*}
+
+The \MATLAB function \verb|std()| was called on the residuals, which resulted in $s = xxx.xxx$. Figure \ref{fig: prob1 lm solution residuals} below shows the provided data as well as the 3-sigma bound which should contain nearly all of the residuals. 
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.8\textwidth]{./images/prob1_lm_solution_residuals.eps}
+	\caption{Levenberg-Marquardt Solution Residuals}
+	\label{fig: prob1 lm solution residuals}
+\end{figure}
+\FloatBarrier
+
+Since the model is sinusoidal and any error in the model parameters, especially $f_0$ and $\chi^2$, could leave some residual sinusoidal elements which would violate the assumption that the power in the additive white noise should be equally spread across all frequencies. 
+
+ \begin{figure}[h] 
+ 	\centering
+ 	\includegraphics[width=0.8\textwidth]{./images/prob1_lm_residual_PSD.eps}
+ 	\caption{PSD of Levenberg-Marquardt Solution Residuals}
+ 	\label{fig: prob1 lm solution residuals PSD}
+ \end{figure}
+ \FloatBarrier
+
+\textcolor{red}{Discuss the distribution here once the LM piece is fixed.}
+
+The model covariance matrix is estimated as $C = \left(J(\bv{m}_{LM})^T \bv{m}_{LM}\right)^{-1}$ which is shown below. 
+
+\begin{align*}
+	C = \begin{bmatrix}
+		xxx.xxx & xxx.xxx & xxx.xxx & xxx.xxx \\
+		xxx.xxx & xxx.xxx & xxx.xxx & xxx.xxx \\
+		xxx.xxx & xxx.xxx & xxx.xxx & xxx.xxx \\
+		xxx.xxx & xxx.xxx & xxx.xxx & xxx.xxx
+	\end{bmatrix}
+\end{align*}
+
+The 95\% confidence interval, computed as $1.96 \pm \sqrt{\textrm{diag}(\bv{m}_{LM})}$ is also shown below. 
+
+\begin{align*}
+	\bv{m}_{LM} = \begin{bmatrix} xxx.xxx \\ xxx.xxx \\ xxx.xxx \\ xxx.xxx \end{bmatrix} \pm \begin{bmatrix} xxx.xxx \\ xxx.xxx \\ xxx.xxx \\ xxx.xxx \end{bmatrix}
+\end{align*}
+
+Then, the correlation matrix for all model parameters is below as:
+
+\begin{align*}
+	\rho = \begin{bmatrix}
+		xxx.xxx & xxx.xxx & xxx.xxx & xxx.xxx \\
+		xxx.xxx & xxx.xxx & xxx.xxx & xxx.xxx \\
+		xxx.xxx & xxx.xxx & xxx.xxx & xxx.xxx \\
+		xxx.xxx & xxx.xxx & xxx.xxx & xxx.xxx
+	\end{bmatrix}
+\end{align*}
+
+\textcolor{red}{Discuss which parameters have the strongest correlation once everything is fixed.}
+
