@@ -21,7 +21,7 @@ Let the instrument recording of voltage measurements sampled at $F_s = 50 \unit{
 \end{figure}
 \FloatBarrier
 
-The model of this recording is
+The model of this data in this recording is
 
 \begin{align*}
 	y(t) = A \sin\left( 2 \pi f_0 t + \chi^2 \right) + c + s\eta\left( t \right)
@@ -29,7 +29,7 @@ The model of this recording is
 
 with unknown parameters $A,\,f_0,\,\chi^2,\,c$ which are the amplitude, frequency, phase shift, and DC offset respectively. In addition, the scale of the standard deviation is also unknown. 
 
-For this non-linear inverse problem, the model is 
+For this non-linear inverse problem, the model parameters are 
 
 \begin{align*}
 	\bv{m} = \begin{bmatrix} A \\ f_0 \\ \chi^2 \\ c \end{bmatrix}
@@ -86,7 +86,7 @@ These partial derivatives were verified to Wolfram Alpha to ensure I didn't make
 The \verb|lm()| function from the \verb|Lib| directory was used to estimate the model. The tolerance was set to $1e-12$ with a maximum of 100 iterations. This resulted in the model below. 
 
 \begin{align*}
-	\bv{m}_{LM} = \begin{bmatrix} xxx.xxx \\ xxx.xxx \\ xxx.xxx \\ xxx.xxx \end{bmatrix}
+	\bv{m}_{LM} = \begin{bmatrix} 90.344 \\ 0.057 \\ -5.417 \\ 9.266 \end{bmatrix}
 \end{align*}
 
 These models resulted in the following comparison to the provided data in figure \ref{fig: prob1 lm solution}. 
@@ -99,13 +99,35 @@ These models resulted in the following comparison to the provided data in figure
 \end{figure}
 \FloatBarrier
 
+This successful model fit is because we picked a good starting model that somewhat closely resembled the provided data. Suppose as an example that we had mindlessly chosen an initial model of all zero. Running the LM method with this starting model resulted in a terrible model, let's call it $\bv{m}_{bad}$. 
+
+\begin{align*}
+	\bv{m}_{bad} = \begin{bmatrix} 0 \\ 0 \\ 0 \\ 18.502 \end{bmatrix}
+\end{align*}
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.8\textwidth]{./images/prob1_lm_solution_bad_start_model.eps}
+	\caption{Levenberg-Marquardt Solution with a Bad Starting Model}
+	\label{fig: prob1 bad starting model}
+\end{figure}
+\FloatBarrier
+
+Notice that the 4th model parameter is simply the mean of the recorded data, which is what we used as an initial model to begin with! This makes it clear that the starting model is very important to ensure we are not trapped in some sort of local minima. 
+
 To estimate the standard deviation $s$ applied in the model, the residuals were computed using the model parameters from the LM solution. 
 
 \begin{align*}
 	r = \tilde{y}(t) - F(\bv{m}_{LM})
 \end{align*}
 
-The \MATLAB function \verb|std()| was called on the residuals, which resulted in $s = xxx.xxx$. Figure \ref{fig: prob1 lm solution residuals} below shows the provided data as well as the 3-sigma bound which should contain nearly all of the residuals. 
+The sample mean is determined by the equation below. 
+
+\begin{align*}
+	s = \sqrt{\frac{\twonorm{\bv{r}}^2}{m - n}}
+\end{align*}
+
+This resulted in $s = 211.350$. Figure \ref{fig: prob1 lm solution residuals} below shows the provided data as well as the 3-sigma bound which should contain nearly all of the residuals. The dashed line in figure \ref{fig: prob1 lm solution residuals} is the mean of the residuals. 
 
 \begin{figure}[h] 
 	\centering
@@ -115,45 +137,57 @@ The \MATLAB function \verb|std()| was called on the residuals, which resulted in
 \end{figure}
 \FloatBarrier
 
-Since the model is sinusoidal and any error in the model parameters, especially $f_0$ and $\chi^2$, could leave some residual sinusoidal elements which would violate the assumption that the power in the additive white noise should be equally spread across all frequencies. 
+These residuals appear as only Gaussian noise via visual inspection. To verify, a histogram of the residuals is provided. Figure \ref{fig: prob1 lm solution residuals histogram} shows a uni-modal distribution centered around the mean identified in figure \ref{fig: prob1 lm solution residuals}.
 
- \begin{figure}[h] 
- 	\centering
- 	\includegraphics[width=0.8\textwidth]{./images/prob1_lm_residual_PSD.eps}
- 	\caption{PSD of Levenberg-Marquardt Solution Residuals}
- 	\label{fig: prob1 lm solution residuals PSD}
- \end{figure}
- \FloatBarrier
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.8\textwidth]{./images/prob1_lm_residual_histogram.eps}
+	\caption{Levenberg-Marquardt Solution Residuals Histogram}
+	\label{fig: prob1 lm solution residuals histogram}
+\end{figure}
+\FloatBarrier
 
-\textcolor{red}{Discuss the distribution here once the LM piece is fixed.}
+The model covariance matrix is estimated as $C \approx s^2 \left(J(\bv{m}_{LM})^T J(\bv{m}_{LM})\right)^{-1}$ which is shown below. 
 
-The model covariance matrix is estimated as $C = \left(J(\bv{m}_{LM})^T \bv{m}_{LM}\right)^{-1}$ which is shown below. 
-
-\begin{align*}
-	C = \begin{bmatrix}
-		xxx.xxx & xxx.xxx & xxx.xxx & xxx.xxx \\
-		xxx.xxx & xxx.xxx & xxx.xxx & xxx.xxx \\
-		xxx.xxx & xxx.xxx & xxx.xxx & xxx.xxx \\
-		xxx.xxx & xxx.xxx & xxx.xxx & xxx.xxx
-	\end{bmatrix}
-\end{align*}
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.75\textwidth]{./images/prob1_model_covariance.png}
+	\caption{Estimated Model Covariance}
+	\label{fig: prob1 model covariance}
+\end{figure}
+\FloatBarrier
 
 The 95\% confidence interval, computed as $1.96 \pm \sqrt{\textrm{diag}(\bv{m}_{LM})}$ is also shown below. 
 
 \begin{align*}
-	\bv{m}_{LM} = \begin{bmatrix} xxx.xxx \\ xxx.xxx \\ xxx.xxx \\ xxx.xxx \end{bmatrix} \pm \begin{bmatrix} xxx.xxx \\ xxx.xxx \\ xxx.xxx \\ xxx.xxx \end{bmatrix}
+	\bv{m}_{LM} = \begin{bmatrix} 90.344 \\ 0.057 \\ -5.417 \\ 9.266 \end{bmatrix} \pm \begin{bmatrix} 0.060639 \\ 0.000011 \\ 0.001544 \\ 0.045456 \end{bmatrix}
 \end{align*}
 
 Then, the correlation matrix for all model parameters is below as:
 
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.75\textwidth]{./images/prob1_corr_matrix.png}
+	\caption{Model Parameter Correlation Matrix}
+	\label{fig: prob1 correlation matrix}
+\end{figure}
+\FloatBarrier
+
+The frequency and phase shift parameters have the strongest correlation, which is a negative correlation. The next strongest correlation, which is also a positive correlation, is between the amplitude and the frequency. 
+
+To determine if it was possible to achieve a better model fit, I played around with the initial model to see if it would converge to something better. In particular, I wanted to see if I could remove the non-zero bias in the residuals from figure \ref{fig: prob1 lm solution residuals}. \textit{After approximately 20 minutes of playing around with different initial models}, I was unable to get any sort of better fit. Any close initial model would converge to the initial solution, and some wacky initial models would result in another wacky solution. Figure \ref{fig: prob1 wacky lm solution} is an example of such a thing. 
+
 \begin{align*}
-	\rho = \begin{bmatrix}
-		xxx.xxx & xxx.xxx & xxx.xxx & xxx.xxx \\
-		xxx.xxx & xxx.xxx & xxx.xxx & xxx.xxx \\
-		xxx.xxx & xxx.xxx & xxx.xxx & xxx.xxx \\
-		xxx.xxx & xxx.xxx & xxx.xxx & xxx.xxx
-	\end{bmatrix}
+	\bv{m}_{bad} = \begin{bmatrix} 10 \\ 0.1 \\ -25 \\ -18 \end{bmatrix}
 \end{align*}
 
-\textcolor{red}{Discuss which parameters have the strongest correlation once everything is fixed.}
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.8\textwidth]{./images/prob1_lm_solution_new_start_model.eps}
+	\caption{Wacky Levenberg-Marquardt Solution}
+	\label{fig: prob1 wacky lm solution}
+\end{figure}
+\FloatBarrier
+
+I suspect that there may be another way to get a better fit, but I was not able to do so. 
 

@@ -1,7 +1,7 @@
-function y = prob1Function(m)
+function F = prob1Function(m)
 % Implements the function in eq. 9.56
 %
-% m = [A, f0, c, s]^T
+% m = [A, f0, chi2, sc^T
 %
 %
 
@@ -12,7 +12,7 @@ arguments (Input)
 end
 
 arguments (Output)
-    y (:,1) {isfloat, mustBeReal, mustBeFinite}
+    F (:,1) {isfloat, mustBeReal, mustBeFinite}
 end
 
 
@@ -21,7 +21,10 @@ end
 persistent t
 t = 0.02 * (0 : 1999).';
 
-y = m(1)*sin(2*pi*m(2).*t + m(3)) + m(4);
+persistent d
+d = load(fullfile(pwd, "data", "instdata.mat"));
+
+F = (m(1)*sin(2*pi*m(2).*t + m(3)) + m(4)) - d.instdata;
 
 
 end
