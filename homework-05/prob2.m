@@ -71,3 +71,39 @@ fprintf("\tMinimum Value for Chi-Squared: %6.3f\n", globalMin)
 
 %% Part B
 
+% % Plot Histogram
+% fig = figure("Name", "Chi^2 Histogram");
+% ax = gca;
+% hold(ax, "on")
+% hg = histogram(Z, "Normalization", "probability");
+% title("\chi^2 Distribution")
+% xlabel("\chi^2 values")
+% grid on
+% grid minor
+
+delta2 = chi2inv(0.95, m - n);
+deltaChi2 = Z - globalMin;
+
+inMask = deltaChi2 <= delta2;
+outMask = deltaChi2 > delta2;
+
+Z_in = Z;
+Z_in(outMask) = NaN;
+Z_out = Z;
+Z_out(inMask) = NaN;
+
+% Plot the resulting surface
+fig = figure("Name", "Chi-Squared Surface");
+ax = gca;
+hold(ax, "on")
+sh1 = surf(X, Y, Z_in, 'FaceColor', 'g');
+sh2 = surf(X, Y, Z_out, 'FaceColor', 'r');
+ph = plot3(ep(rowIndex), T(colIndex), globalMin, 'r.', 'MarkerSize', 25);
+title("\chi^2(m) - \chi^2(m_0) \leq \Delta^2")
+xlabel("\epsilon")
+ylabel("T")
+zlabel("\chi^2")
+grid on
+view(75, 35)
+legend(ph, "Minimum", "Location", "eastoutside")
+saveFigureAsEps("prob2_chi_2_surface_95_conf.eps", fig);
