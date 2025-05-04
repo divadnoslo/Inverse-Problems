@@ -2,11 +2,19 @@ close all
 clear
 clc
 
+warning off
 
 %% Perform All Tasks
 
-task_01__traditional_cal_comparison
-task_02__accel_param_estimation
-task_03__gyro_param_estimation
-task_04__accel_param_estimation_new_dynamics
-task_05__gyro_param_estimation_new_dynamics
+% Create IMU Model
+task_01__create_IMU_model
+
+% % Single-Axis Motion Experiment
+% task_02__run_single_axis_rate_table_motion_experiment
+% task_03__evaluate_SAM_gyro_experiment
+% task_04__evaluate_SAM_accel_experiment
+
+% Multi-Axis Motion Experiment
+task_06__run_multi_axis_motion_experiment
+task_07__evaluate_MAM_gyro_experiment
+task_08__evaluate_MAM_accel_experiment

@@ -13,3 +13,34 @@
 
 \subsubsection{Part A}
 
+Equation 9.60 was implemented in \MATLAB using the provided constants within the function \verb|prob2Function()|. This function doesn't only compute equation 9.60, but actually returns the residuals scaled by the standard deviation. 
+
+A \verb|meshgrid| was created with independent variables $\epsilon$ and $T$. Each point in the \verb|meshgrid| are a combination of the model parameters, and surface over top is the $\chi^2$ function. The surface generated is in \ref{fig: prob2 chi2 surface}.
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.75\textwidth]{./images/prob2_chi_2_surface.eps}
+	\caption{Chi-Squared Surface}
+	\label{fig: prob2 chi2 surface}
+\end{figure}
+\FloatBarrier
+
+The minimum value on this surface is $7.312$, which corresponds with model parameters $\epsilon = 7.05 \times 10^{-4},\,\,\,T = 7.05 \times 10^{4}$. 
+
+
+\subsubsection{Part B}
+
+To compute the 95\% confidence interval for our solution, we would prefer to use equation 9.41 over equation 9.39 since we are able to avoid computing the Jacobian of equation 9.60. 
+
+The region of the 95\% confidence interval is bounded by the value $\Delta^2$. The value $\Delta^2$ was computed using the function \verb|chi2inv()| in the \verb|Lib| directory with the degree of freedom $\nu =9 - 2 = 7$, which resulted in a value of $\Delta^2 = 14.0637$. The model parameters on the \verb|meshgrid| which resulting in a $\chi^2$ value less then $\Delta^2$ are highlighted in green, while value not in the region are in red in \ref{fig: prob2 chi2 surface 95 conf}.
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.75\textwidth]{./images/prob2_chi_2_surface_95_conf.eps}
+	\caption{95\% Confidence Region}
+	\label{fig: prob2 chi2 surface 95 conf}
+\end{figure}
+\FloatBarrier
+
+This region does not resemble an ellipse, which was never a guarantee. 
+
