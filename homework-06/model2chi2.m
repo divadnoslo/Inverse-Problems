@@ -1,5 +1,5 @@
-function r = model2residuals(m)
-% Compute Concentration (N)
+function chi2 = model2chi2(m)
+% Compute Resulting Chi^2 Values
 %
 % m = [ep, T]
 %
@@ -12,7 +12,7 @@ arguments (Input)
 end
 
 arguments (Output)
-    r (:,1) {isfloat, mustBeReal}
+    chi2 (1,1) {isfloat, mustBeReal}
 end
 
 
@@ -25,7 +25,7 @@ mu = 0.0166;
 d = load(fullfile(pwd, "data", "be10.mat"));
 
 N = (P0/(lambda + mu*m(1))) .* exp(-mu.*d.depths) .* (1 - exp(-1 * (lambda + mu*m(1)) .* m(2)));
-r = (N - d.d) ./ d.sigma; 
+chi2 = sum((N - d.d).^2 ./ (d.sigma.^2)); 
 
 
 end

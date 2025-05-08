@@ -13,15 +13,41 @@ load(fullfile(pwd, "working_file.mat"))
 
 %% Create Single-Axis Rate-Table Motion
 
+% g = [0; 0; -gravity];
+% 
+% Fs = 100;
+% dt = 1 / Fs;
+% t_segment = 0 : dt : 1;
+% K = length(t_segment);
+% 
+% A = (2*pi) * 15 * pi/180;
+% curve = A * sin(2*pi*t_segment);
+% 
+% w_b__i_b_true = zeros(3, 3*K);
+% w_b__i_b_true(1,1:K) = curve;
+% w_b__i_b_true(2,K + (1:K)) = curve;
+% w_b__i_b_true(3,2*K + (1:K)) = curve;
+% 
+% t = (0:length(w_b__i_b_true)-1) * dt;
+% 
+% euler = cumtrapz(t, w_b__i_b_true, 2);
+% dcm = euler2dcm(euler(1,:), euler(2,:), euler(3,:));
+% 
+% f_b__i_b_true = squeeze(pagemtimes(dcm, g));
+
 g = [0; 0; -gravity];
 
 Fs = 100;
 dt = 1 / Fs;
-t_segment = 0 : dt : 1;
+t_end = 5;
+t_segment = 0 : dt : t_end;
 K = length(t_segment);
 
-A = (2*pi) * 15 * pi/180;
-curve = A * sin(2*pi*t_segment);
+A = (2*pi) * 25 * pi/180;
+curve = A * sin(2*pi*(1/t_end)*t_segment);
+
+curve = [curve, -curve, 2*curve, -2 * curve];
+K = length(curve);
 
 w_b__i_b_true = zeros(3, 3*K);
 w_b__i_b_true(1,1:K) = curve;
