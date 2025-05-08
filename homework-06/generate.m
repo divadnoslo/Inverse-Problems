@@ -12,4 +12,4 @@
 %
 function y=generate(x)
 global stepsize
-y=x+stepsize.*randn(4,1);
+y=x+stepsize.*randn(2,1);

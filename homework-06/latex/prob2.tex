@@ -13,144 +13,64 @@
 
 \subsubsection{Part A}
 
-The first step is to convert the grid of $\chi^2$ values from the previous homework problem into the likelihood values $L\left(\bv{m}|\bv{d}\right)$. Recall the surface of $chi^2$ values from the previous problem below. 
+To call the \verb|mcmc()| function, I adjusted the function \verb|logprior()| to \verb|logprior1| which returns $0$ if the candidate model is within our specified grid, and $-\inf$ otherwise to be consistent with a uniform distribution. I also adjusted the function \verb|loglikelihood| to return the likelihood for a given candidate model for our problem. 
+
+I ran $10,000$ samples with a step size of half of the steps used to build the grid. I tried to run more samples, but it caused my laptop to crash when I let it run over night. For an initial model, I choose to just start in the middle of the grid to see what would happen. 
 
 \begin{figure}[h] 
 	\centering
-	\includegraphics[width=0.75\textwidth]{./images/prob1_partA_chi_2_surface.eps}
-	\caption{Chi-Squared Surface}
-	\label{fig: prob1 chi2 surface}
+	\includegraphics[width=0.75\textwidth]{./images/prob2_uniform_prior.eps}
+	\caption{MCMC for a Uniform Prior}
+	\label{fig: prob2 mcmc uniform prior}
 \end{figure}
 \FloatBarrier
 
-The likelihood is equal to $L\left(\bv{m}|\bv{d}\right) = f\left(\bv{d}|\bv{m}\right) = f\left(d_1|\bv{m}\right) f\left(d_1|\bv{m}\right) \ldots f\left(d_m|\bv{m}\right)$.
-
-The likelihood of a given data point $d_i$ is below. 
-
-\begin{align*}
-	f\left(d_i|\bv{m}\right) = \frac{1}{\sigma\sqrt{2\pi}} e^{-\frac{\left(G(\bv{m})_i - d_i\right)^2}{2\sigma^2}}
-\end{align*}
-
-For $m$ data points, the product of each $f\left(d_i|\bv{m}\right)$ is also shown below, which differs slightly from equation 11.10 since our data points in this problem have different sigma values.
-
-\begin{align*}
-	L\left(\bv{m}|\bv{d}\right) = f\left(\bv{d}|\bv{m}\right) = \left[\prod_{i=1}^{m}\frac{1}{\sigma_i\sqrt{2\pi}}\right] \left[e^{-\sum_{i=1}^{m} \frac{\left(G(\bv{m})_i - d_i\right)^2}{2\sigma^2}}\right]
-\end{align*} 
-
-Recall that $\chi^2 = \sum_{i=1}^{m} \frac{\left(G(\bv{m})_i - d_i\right)^2}{\sigma^2}$ per equation 2.20, which can be substituted in the above expression. 
-
-\begin{align*}
-	L\left(\bv{m}|\bv{d}\right) = \left[\prod_{i=1}^{m}\frac{1}{\sigma_i\sqrt{2\pi}}\right] \left[e^{\frac{-\chi^2}{2}}\right]
-\end{align*}
-
-Doing so allows us to convert our grid of $chi^2$ values into likelihood values. Given that the grid consists of so many points, the likelihood at each point in the grid is incredibly small. 
-
-\begin{figure}[h] 
-	\centering
-	\includegraphics[width=0.75\textwidth]{./images/prob1_partA_likelihood_surface.eps}
-	\caption{Likelihood Surface}
-	\label{fig: prob1 likelihood surface}
-\end{figure}
-\FloatBarrier
-
-The posterior distribution is given by the expression below:
-
-\begin{align*}
-	q\left(\bv{m}|\bv{d}\right) = \frac{p\left(\bv{m}\right) f\left(\bv{d}|\bv{m}\right)}{\int_{\textrm{all models}} f\left(\bv{d}|\bv{m}\right) p\left(\bv{m}\right) d\bv{m}}
-\end{align*}
-
-The prior is a uniform distribution $P\left(\epsilon,\,T\right) = 1$ which simplifies the above expression as shown below.
-
-\begin{align*}
-	q\left(\bv{m}|\bv{d}\right) = \frac{f\left(\bv{d}|\bv{m}\right)}{\int_{\textrm{all models}} f\left(\bv{d}|\bv{m}\right) d\bv{m}}
-\end{align*}
-
-In essence, the posterior distribution is $f\left(\bv{d}|\bv{m}\right)$ normalized by the volume under the two-dimensional surface. The volume can be approximated as:
-
-\begin{align*}
-	q\left(\bv{m}|\bv{d}\right) \approx \frac{f\left(\bv{d}|\bv{m}\right)}{\sum f\left(\bv{d}|\bv{m}\right) d\epsilon dT}
-\end{align*}
-
-The resulting posterior distribution is shown in figure \ref{fig: prob1 posterior distribution};
-
-\begin{figure}[h] 
-	\centering
-	\includegraphics[width=0.75\textwidth]{./images/prob1_partA_posterior_distribution.eps}
-	\caption{Posterior Distribution}
-	\label{fig: prob1 posterior distribution}
-\end{figure}
-\FloatBarrier
+The resulting distribution from the samples appears looks similar to the posterior distribution we computed in the previous problem! 
 
 
 \subsubsection{Part B}
 
-Given the joint probability $q\left(\bv{m}|\bv{d}\right) = p\left(\epsilon,\,T\right)$, each marginal probability for the two random variables are below. 
-
-\begin{align*}
-	p_\epsilon(\epsilon) &= \int_{T} p\left(\epsilon,\,T\right) dT \\
-	\\
-	p_T(T) &= \int_{\epsilon} p\left(\epsilon,\,T\right) d\epsilon
-\end{align*}
-
-The marginal probability density functions (technically, its a probability mass function) are in figure \ref{fig: prob1 marginal distributions}.
+To approximate the marginal probabilities, I simply plotted a histogram of each row of the candidate model history from the \verb|mcmc()| function output. In \MATLAB, I called the \verb|histogram()| function and used the \verb|"pdf"| option for normalization. This resulted in the figure below. 
 
 \begin{figure}[h] 
 	\centering
-	\includegraphics[width=0.75\textwidth]{./images/prob1_partB_marginal_distributions.eps}
-	\caption{Marginal Distributions}
-	\label{fig: prob1 marginal distributions}
+	\includegraphics[width=0.75\textwidth]{./images/prob2_uniform_prior_marginal_prob.eps}
+	\caption{Marginal Probabilities with a Normal Prior}
+	\label{fig: prob2 mcmc uniform prior marginal prob}
 \end{figure}
 \FloatBarrier
+
+These marginal probabilities don't match the previous problem, but that might be due to a low amount of samples.
 
 
 \subsubsection{Part C}
 
-Now we are provided a new prior, which is shown in figure \ref{fig: prob1 partC prior distribution}. 
-
-\begin{align*}
-	p\left(\bv{m}\right) = p\left(\epsilon,\,T\right) \propto e^{-\frac{\left(\epsilon - 0.0005^2\right)^2}{2 \cdot 0.0002^2}}
-\end{align*}
+I repeated the same process as parts A and B, however I made a new function titled \verb|logprior2| that computed the value of the probability density function for the candidate value of $\epsilon$. This resulted in the figure below. 
 
 \begin{figure}[h] 
 	\centering
-	\includegraphics[width=0.75\textwidth]{./images/prob1_partC_prior_distribution.eps}
-	\caption{Prior Distribution}
-	\label{fig: prob1 partC prior distribution}
+	\includegraphics[width=0.75\textwidth]{./images/prob2_normal_prior.eps}
+	\caption{MCMC for a Uniform Prior}
+	\label{fig: prob2 mcmc normal prior}
 \end{figure}
 \FloatBarrier
 
-To compute the new posterior distribution, consider that the posterior distribution is proportional to the product of the prior distribution and the likelihood. Since we are considering the proportionality, we can drop the scale factor term on the likelihood function. 
-
-\begin{align*}
-	q\left(\bv{m}|\bv{d}\right) &\propto p\left(\bv{m}\right) f\left(\bv{d}|\bv{m}\right) \\
-	\\
-	&\propto e^{-\frac{\left(\epsilon - 0.0005\right)^2}{2 \cdot 0.0002^2}} e^{\frac{-\chi^2}{2}}
-\end{align*}
-
-The grid of likelihood values $f\left(\bv{d}|\bv{m}\right)$ were each multiplied by the probability density function output related to the value of $\epsilon$ associated with the grid. This resulted in a new joint probability density function which is shown in figure \ref{fig: prob1 partC posterior distribution}.
+Using the same process for the marginal probabilities, I approximated the marginal probabilities below. 
 
 \begin{figure}[h] 
 	\centering
-	\includegraphics[width=0.75\textwidth]{./images/prob1_partC_posterior_distribution.eps}
-	\caption{Posterior Distribution with Prior Applied}
-	\label{fig: prob1 partC posterior distribution}
-\end{figure}
-\FloatBarrier
-
-The newly computed marginal probabilities are also shown below in figure \ref{fig: prob1 partC marginal distributions}.
-
-\begin{figure}[h] 
-	\centering
-	\includegraphics[width=0.75\textwidth]{./images/prob1_partC_marginal_distributions.eps}
-	\caption{Marginal Distributions with Prior Applied}
-	\label{fig: prob1 partC marginal distributions}
+	\includegraphics[width=0.75\textwidth]{./images/prob2_normal_prior_marginal_prob.eps}
+	\caption{Marginal Probabilities with a Normal Prior}
+	\label{fig: prob2 mcmc normal prior marginal prob}
 \end{figure}
 \FloatBarrier
 
 
 \subsubsection{Part D}
 
-When comparing the results between using the uniformly-distributed prior versus the normally-distributed prior, it is clear that this made a key difference for the $\epsilon$ parameter. The marginal probability $p_\epsilon\left(\epsilon\right)$ \textit{should have} appeared flat, but for some reason it showed that it was increasing. (I think there might have been a bug somewhere). 
+It took me quite a bit of time to figure out how to apply MCMC to this problem, but I am proud that I was able to figure it out. It took a lot of tuning for the number of samples and the step size to begin to see how using this MCMC method provided similar results to what we saw in the first problem. 
 
-However for the normally-distributed prior case, we were able to see the mean shift in the marginal $p_\epsilon\left(\epsilon\right)$ in response to the likelihoods. It seems that the variance also grew as well. Even though the prior didn't contain any information about the $T$ model parameter, its marginal probability density function was still reshaped into something that appears more multi-modal. 
+With the uniform prior, the samples seemed to congregate outside of the original search grid that was established in the last homework assignment. The marginal probability for $\epsilon$ seems to have a similar shape as the last problem, but the histogram contains values outside of the search grid. 
+
+With the normal prior, the original scatter plot seemed to have the same distribution as the previous problem which to me appeared as a source of validation for the MCMC method being implemented properly. However, inspecting the marginal probabilities, it appears that both distributions are now bimodal, which was an unexpected result. I am curious if I can tune the step sizes or number of iterations to remove this bimodal trend if I had more time. 
 

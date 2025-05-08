@@ -2,6 +2,8 @@ close all
 clear
 clc
 
+tic
+
 % Add to Path
 addpath(genpath(fullfile("..", "PEIP-master", "Lib")))
 
@@ -12,10 +14,13 @@ saveFigureAsEps = @(name, fig)(exportgraphics(fig, fullfile(pwd, "latex", "image
 load(fullfile(pwd, "data", "be10.mat"))
 
 
-%% Problem 1 - Exercise 10 in Section 11.6
+%% Problem 2 - Exercise 11 in Section 11.6
 
-
-%% Create Grid of Chi-Squared Values
+% Points
+d_ep = 1e-5;
+d_T = 1000;
+ep = 5e-6 : d_ep : 1e-3;
+T = 500 : d_T : 199500; 
 
 % Givens
 lambda = 4.998e-7;
@@ -44,150 +49,112 @@ for ii = 1 : rows
     end
 end  
 
-% Chi-Squared Surface
-fig = figure("Name", "Chi-Squared Surface");
-ax = gca;
-hold(ax, "on")
-sh = surf(X, Y, chi2);
-title("\chi^2 Surface")
-xlabel("\epsilon")
-ylabel("T")
-zlabel("\chi^2")
-grid on
-view(75, 35)
-saveFigureAsEps("prob1_partA_chi_2_surface.eps", fig);
+%% MCMC Settings
+
+global stepsize
+
+N = 1e4;
+stepsize = 0.5 * [d_ep; d_T];
 
 
 %% Part A
 
-% Convert Chi^2 Values to Likelihoods
-L = chi2likelihood(chi2);
+m0 = [...
+    ep(50); ...
+    T(100)];
+[mout,mMAP,pacc]=mcmc('logprior1','loglikelihood','generate','logproposal',m0,N);
 
-% Likelihood Surface
-fig = figure("Name", "Likelihood Surface");
+disp("Part A")
+disp(mMAP)
+
+% MAP Solution 1
+fig = figure("Name", "M-MAP Solution 1");
 ax = gca;
 hold(ax, "on")
-sh = surf(X, Y, L);
-title("L(m|d) Surface")
+plot(mout(1,:), mout(2,:), 'k.')
+plot(m0(1), m0(2), 'b.', 'MarkerSize', 20)
+plot(mMAP(1), mMAP(2), 'r.', 'MarkerSize', 20)
+title("MCMC \rightarrow m_M_A_P: Uniform Prior")
 xlabel("\epsilon")
 ylabel("T")
-zlabel("L(m|d)")
+xlim([ep(1), max(mout(1,:) + d_ep)])
+ylim([T(1) T(end)])
 grid on
-view(75, 35)
-saveFigureAsEps("prob1_partA_likelihood_surface.eps", fig);
-
-% Posterior Distribution
-q = L ./ (sum(L, 'all') * d_ep * d_T);
-ismembertol(sum(q, "all")  * d_ep * d_T, 1, 1e-3);
-
-fig = figure("Name", "Posterior Distribution");
-ax = gca;
-hold(ax, "on")
-sh = surf(X, Y, q);
-title("Posterior Distribution q(m|d)")
-xlabel("\epsilon")
-ylabel("T")
-zlabel("q(m|d)")
-grid on
-view(75, 35)
-saveFigureAsEps("prob1_partA_posterior_distribution.eps", fig);
+legend(["Candidate Model", "Initial Model", "m_M_A_P"], 'Location', 'eastoutside')
+saveFigureAsEps("prob2_uniform_prior.eps", fig);
 
 
 %% Part B
 
-% Marginal Probabilities
-p_ep = sum(q, 1) * d_T;
-p_T = sum(q, 2) * d_ep;
-
-% Ensure they are properly normalized
-ismembertol(sum(p_ep * d_ep), 1, 1e-3);
-ismembertol(sum(p_T * d_T), 1, 1e-3);
-
-% Plot Marginal Distibutions
-fig = figure("Name", "Marginal Distributions");
+% Plot Marginal Probabilities
+fig = figure("Name", "Marginal Probabilities with Uniform Prior");
 tl = tiledlayout(2, 1, "Parent", fig);
-title(tl, "Marginal Distributions")
+title(tl, "Marginal Probabilities with Uniform Prior")
 ax = nexttile(1);
-area(ep, p_ep, 'FaceAlpha', 0.5)
+histogram(mout(1,:), "Normalization", "pdf")
 title("p_\epsilon(\epsilon)")
 xlabel("\epsilon")
 ylabel("PDF")
+xlim([ep(1) ep(end)])
 grid on
 grid minor
 ax = nexttile(2);
-area(T, p_T, 'FaceAlpha', 0.5)
+histogram(mout(2,:), "Normalization", "pdf")
 title("p_T(T)")
 xlabel("T")
 ylabel("PDF")
+xlim([T(1) T(end)])
 grid on
 grid minor
-saveFigureAsEps("prob1_partB_marginal_distributions.eps", fig);
+saveFigureAsEps("prob2_uniform_prior_marginal_prob.eps", fig);
 
 
 %% Part C
 
-% Prior Distribution
-prior = NormalDistribution(0.0005, 0.0002^2);
+[mout,mMAP,pacc]=mcmc('logprior2','loglikelihood','generate','logproposal',m0,N);
 
-% Plot Prior
-fig = figure("Name", "Prior Distribution");
-area(ep, prior.probabilityDensityFunction(ep), 'FaceAlpha', 0.5)
-title("Prior Distribution")
-xlabel("\epsilon")
-ylabel("p(\epsilon)")
-grid on
-grid minor
-saveFigureAsEps("prob1_partC_prior_distribution.eps", fig);
+disp("Part B")
+disp(mMAP)
 
-% Apply Prior to the Likelihood
-qP = zeros(size(X));
-[rows, cols] = size(X);
-for ii = 1 : rows
-    for jj = 1 : cols
-        qP(ii,jj) = prior.probabilityDensityFunction(X(ii,jj)) * L(ii,jj);
-    end
-end  
-
-% Normalize
-qN = qP ./ (sum(qP, 'all') * d_ep * d_T);
-ismembertol(sum(qN, "all")  * d_ep * d_T, 1, 1e-3);
-
-fig = figure("Name", "Posterior Distribution with Prior Applied");
+% MAP Solution 2
+fig = figure("Name", "M-MAP Solution 2");
 ax = gca;
 hold(ax, "on")
-sh = surf(X, Y, qN);
-title("Posterior Distribution q(m|d) with Prior Applied")
+plot(mout(1,:), mout(2,:), 'k.')
+plot(m0(1), m0(2), 'b.', 'MarkerSize', 20)
+plot(mMAP(1), mMAP(2), 'r.', 'MarkerSize', 20)
+title("MCMC \rightarrow m_M_A_P: Normal Prior")
 xlabel("\epsilon")
 ylabel("T")
-zlabel("q(m|d)")
+xlim([ep(1) ep(end)])
+ylim([T(1) T(end)])
 grid on
-view(75, 35)
-saveFigureAsEps("prob1_partC_posterior_distribution.eps", fig);
+legend(["Candidate Model", "Initial Model", "m_M_A_P"], 'Location', 'eastoutside')
+saveFigureAsEps("prob2_normal_prior.eps", fig);
 
-% Marginal Probabilities
-p_ep_N = sum(qN, 1) * d_T;
-p_T_N = sum(qN, 2) * d_ep;
-
-% Ensure they are properly normalized
-ismembertol(sum(p_ep_N * d_ep), 1, 1e-3);
-ismembertol(sum(p_T_N * d_T), 1, 1e-3);
-
-% Plot Marginal Distibutions
-fig = figure("Name", "Marginal Distributions");
+% Plot Marginal Probabilities
+fig = figure("Name", "Marginal Probabilities with Normal Prior");
 tl = tiledlayout(2, 1, "Parent", fig);
-title(tl, "Marginal Distributions with Prior Applied")
+title(tl, "Marginal Probabilities with Normal Prior")
 ax = nexttile(1);
-area(ep, p_ep_N, 'FaceAlpha', 0.5)
+histogram(mout(1,:), "Normalization", "pdf")
 title("p_\epsilon(\epsilon)")
 xlabel("\epsilon")
 ylabel("PDF")
+xlim([ep(1) ep(end)])
 grid on
 grid minor
 ax = nexttile(2);
-area(T, p_T_N, 'FaceAlpha', 0.5)
+histogram(mout(2,:), "Normalization", "pdf")
 title("p_T(T)")
 xlabel("T")
 ylabel("PDF")
+xlim([T(1) T(end)])
 grid on
 grid minor
-saveFigureAsEps("prob1_partC_marginal_distributions.eps", fig);
+saveFigureAsEps("prob2_normal_prior_marginal_prob.eps", fig);
+
+%% Timer
+
+fprintf("Elapsed Time: %6.2f minutes\n\n", toc/60)
+
