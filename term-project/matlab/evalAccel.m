@@ -10,7 +10,7 @@ arguments (Input)
     f_b__i_b_meas (3,:) {isfloat, mustBeReal, mustBeFinite}
     m_accel_true  (12,1) {isfloat, mustBeReal, mustBeFinite}
     profileNumber (1,1) {mustBePositive}
-    accelTable     (:,:) {mustBeA(accelTable, 'table')}
+    accelTable    (:,:) {mustBeA(accelTable, 'table')}
     accelModelLabels
 end
 

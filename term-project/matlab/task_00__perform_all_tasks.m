@@ -9,18 +9,12 @@ warning off
 % Create IMU Model
 task_01__create_IMU_model
 
-% % Motion Profile 1
-% task_02__run_motion_profile_1
-% task_03__evaluate_MP1_gyro_experiment
-% task_04__evaluate_MP1_accel_experiment
-% task_05__evaluate_MP1_accel_experiment_v2
+% Motion Profiles for Comparison
+task_02__run_motion_profile_1
+task_03__run_motion_profile_2
+task_04__run_motion_profile_3
+task_05__compare_gyroscope_results
+task_06__compare_accelerometer_results
 
-% % Motion Profile 2
-% task_06__run_motion_profile_2
-% task_07__evaluate_MP2_gyro_experiment
-% task_08__evaluate_MP2_accel_experiment
-
-% Motion Profile 3
-task_09__run_motion_profile_3
-task_10__evaluate_MP3_gyro_experiment
-task_11__evaluate_MP3_accel_experiment
+% Poorly-Scaled Case
+task_07__run_motion_profile_4

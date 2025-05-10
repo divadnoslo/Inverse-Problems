@@ -4,17 +4,16 @@
 % clear
 % clc
 
-% Save figures as *.eps
-saveFigureAsEps = @(name, fig)(exportgraphics(fig, fullfile("..", "latex", "images", name)));
-
 % Load Working File
 load(fullfile(pwd, "working_file.mat"))
 
-% Preamble
-preamble = @(description)(sprintf("Motion Profile 2: %s", description));
+% Profile Number
+profileNumber = 2;
 
-% Make File Name
-makeFileName = @(description)(sprintf("MP2_%s", description));
+% Helper Functions
+saveFigureAsEps = @(name, fig)(exportgraphics(fig, fullfile("..", "latex", "images", name)));
+preamble = @(profileNumber, description)(sprintf("Motion Profile %s: %s", num2str(profileNumber), description));
+makeFileName = @(profileNumber, description)(sprintf("MP%s_%s", num2str(profileNumber), description));
 
 
 %% Create Single-Axis Rate-Table Motion
@@ -27,10 +26,10 @@ t_end = 5;
 t_segment = 0 : dt : t_end;
 K = length(t_segment);
 
-A = (2*pi) * 25 * pi/180;
+A = (2*pi) * 45 * pi/180;
 curve = A * sin(2*pi*(1/t_end)*t_segment);
 
-curve = [curve, -curve, 2*curve, -2 * curve];
+curve = [curve, -curve];
 K = length(curve);
 
 w_b__i_b_true = zeros(3, 3*K);
@@ -56,7 +55,7 @@ f_b__i_b_true = squeeze(pagemtimes(dcm, g));
 % Vizualize Angular Velocity
 fig = figure("Name", "Angular Velocity Profile");
 tl = tiledlayout(3, 1, "Parent", fig);
-title(tl, preamble("Angular Velocity Profile"))
+title(tl, preamble(profileNumber, "Angular Velocity Profile"))
 ax = nexttile(1);
 hold(ax, "on")
 plot(t, 180/pi * w_b__i_b_true(1,:), 'k', 'LineWidth', 2)
@@ -91,12 +90,12 @@ grid on
 grid minor
 legend(["Test Bed", "UUT"], "Location", "eastoutside")
 linkaxes(tl.Children, 'x')
-saveFigureAsEps(makeFileName("angular_velocity_profile.eps"), fig)
+saveFigureAsEps(makeFileName(profileNumber, "angular_velocity_profile.eps"), fig)
 
 % Vizualize Angular Velocity Error
 fig = figure("Name", "Angular Velocity Error");
 tl = tiledlayout(3, 1, "Parent", fig);
-title(tl, preamble("Angular Velocity Error"))
+title(tl, preamble(profileNumber, "Angular Velocity Error"))
 ax = nexttile(1);
 hold(ax, "on")
 plot(t, 180/pi * (w_b__i_b_meas(1,:) - w_b__i_b_true(1,:)), 'r', 'LineWidth', 2)
@@ -125,12 +124,12 @@ xlim([t(1) t(end)])
 grid on
 grid minor
 linkaxes(tl.Children, 'x')
-saveFigureAsEps(makeFileName("angular_velocity_error.eps"), fig)
+saveFigureAsEps(makeFileName(profileNumber, "angular_velocity_error.eps"), fig)
 
 % Vizualize Euler Angle Profile
 fig = figure("Name", "Euler Angle Profile");
 tl = tiledlayout(3, 1, "Parent", fig);
-title(tl, preamble("Euler Angle Profile"))
+title(tl, preamble(profileNumber, "Euler Angle Profile"))
 ax = nexttile(1);
 hold(ax, "on")
 plot(t, 180/pi * euler(1,:), 'r')
@@ -159,12 +158,12 @@ xlim([t(1) t(end)])
 grid on
 grid minor
 linkaxes(tl.Children, 'x')
-saveFigureAsEps(makeFileName("euler_angle_profile.eps"), fig)
+saveFigureAsEps(makeFileName(profileNumber, "euler_angle_profile.eps"), fig)
 
 % Vizualize Specific Force Profile
 fig = figure("Name", "Specific Force Profile");
 tl = tiledlayout(3, 1, "Parent", fig);
-title(tl, preamble("Specific Force Profile"))
+title(tl, preamble(profileNumber, "Specific Force Profile"))
 ax = nexttile(1);
 hold(ax, "on")
 plot(t, f_b__i_b_true(1,:), 'k', 'LineWidth', 2)
@@ -199,12 +198,12 @@ grid on
 grid minor
 legend(["Test Bed", "UUT"], "Location", "eastoutside")
 linkaxes(tl.Children, 'x')
-saveFigureAsEps(makeFileName("specific_force_profile.eps"), fig)
+saveFigureAsEps(makeFileName(profileNumber, "specific_force_profile.eps"), fig)
 
 % Vizualize Specific Force Error
 fig = figure("Name", "Specific Force Error");
 tl = tiledlayout(3, 1, "Parent", fig);
-title(tl, preamble("Specific Force Error"))
+title(tl, preamble(profileNumber, "Specific Force Error"))
 ax = nexttile(1);
 hold(ax, "on")
 plot(t, f_b__i_b_meas(1,:) - f_b__i_b_true(1,:), 'r', 'LineWidth', 2)
@@ -233,10 +232,28 @@ xlim([t(1) t(end)])
 grid on
 grid minor
 linkaxes(tl.Children, 'x')
-saveFigureAsEps(makeFileName("specific_force_error.eps"), fig)
+saveFigureAsEps(makeFileName(profileNumber, "specific_force_error.eps"), fig)
 
+
+%% Evaluate
+
+mp2Gyro = evalGyro(...
+    w_b__i_b_true, ...
+    w_b__i_b_meas, ...
+    m_gyro_true, ...
+    profileNumber, ...
+    gyroTable, ...
+    gyroModelLabels);
+
+mp2Accel = evalAccel(...
+    f_b__i_b_true, ...
+    f_b__i_b_meas, ...
+    m_accel_true, ...
+    profileNumber, ...
+    accelTable, ...
+    accelModelLabels);
 
 %% Append to Working File
 
-save(workingFilePath, "w_b__i_b_true", "f_b__i_b_true", "w_b__i_b_meas", "f_b__i_b_meas", "-append")
+save(workingFilePath, "mp2Gyro", "mp2Accel", "-append")
 
