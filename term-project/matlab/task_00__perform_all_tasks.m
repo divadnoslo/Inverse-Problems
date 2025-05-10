@@ -9,13 +9,18 @@ warning off
 % Create IMU Model
 task_01__create_IMU_model
 
-% Single-Axis Motion Experiment
-task_02__run_single_axis_rate_table_motion_experiment
-task_03__evaluate_SAM_gyro_experiment
-task_04__evaluate_SAM_accel_experiment
-task_05__evaluate_SAM_accel_experiment_v2
+% % Motion Profile 1
+% task_02__run_motion_profile_1
+% task_03__evaluate_MP1_gyro_experiment
+% task_04__evaluate_MP1_accel_experiment
+% task_05__evaluate_MP1_accel_experiment_v2
 
-% % Multi-Axis Motion Experiment
-% task_06__run_multi_axis_motion_experiment
-% task_07__evaluate_MAM_gyro_experiment
-% task_08__evaluate_MAM_accel_experiment
+% % Motion Profile 2
+% task_06__run_motion_profile_2
+% task_07__evaluate_MP2_gyro_experiment
+% task_08__evaluate_MP2_accel_experiment
+
+% Motion Profile 3
+task_09__run_motion_profile_3
+task_10__evaluate_MP3_gyro_experiment
+task_11__evaluate_MP3_accel_experiment

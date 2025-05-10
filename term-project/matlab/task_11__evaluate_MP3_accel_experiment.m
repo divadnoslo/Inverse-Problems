@@ -1,4 +1,4 @@
-%% Task 04: Evaluate Single-Axis Motion Accelerometer Experiment
+%% Task 11: Evaluate MP3 Accelerometer Experiment
 
 % close all
 % clear
@@ -9,6 +9,12 @@ saveFigureAsEps = @(name, fig)(exportgraphics(fig, fullfile("..", "latex", "imag
 
 % Load Working File
 load(fullfile(pwd, "working_file.mat"))
+
+% Preamble
+preamble = @(description)(sprintf("Motion Profile 3: %s", description));
+
+% Make File Name
+makeFileName = @(description)(sprintf("MP3_%s", description));
 
 
 %% Evaluate Accelerometer Calibration Parameters
@@ -37,12 +43,13 @@ ax = gca;
 hold(ax, "on")
 ax.YScale = "log";
 plot(1:n, diag(S), 'bo')
-title("Single-Axis Motion Test: Accelerometer Singular Values")
+title(preamble("Accelerometer Singular Values"))
 xlabel("Singular Value Index")
 ylabel("s_i")
+zx.YLim(1) = 0;
 grid on
 grid minor
-saveFigureAsEps("SAM_accel_singular_values.eps", fig)
+saveFigureAsEps(makeFileName("accel_singular_values.eps"), fig)
 
 % Estimate Calibration Parameters via Normal Equations
 m_accel = inv(G.' * G) * G.' * d;
@@ -76,12 +83,12 @@ ax.YDir = "reverse";
 axis equal
 ax.XLim = [ax.XTick(1) - 0.5, ax.XTick(end) + 0.5];
 ax.YLim = [ax.YTick(1) - 0.5, ax.YTick(end) + 0.5];
-title("Single-Axis Motion Test: Accel Correlation Matrix")
+title(preamble("Accel Correlation Matrix"))
 colorbar(ax, "eastoutside")
-saveFigureAsEps("SAM_accel_correlation_matrix.eps", fig)
+saveFigureAsEps(makeFileName("accel_correlation_matrix.eps"), fig)
 
 % Display Accelermoeter Results
-disp("Single-Axis Motion Accelerometer Results")
+disp(preamble("Results"))
 disp(accelTable)
 
 

@@ -1,4 +1,4 @@
-%% Task 08: Evaluate Multi-Axis Motion Accelerometer Experiment
+%% Task 08: Evaluate MP2 - Accelerometer Experiment
 
 % close all
 % clear
@@ -9,6 +9,12 @@ saveFigureAsEps = @(name, fig)(exportgraphics(fig, fullfile("..", "latex", "imag
 
 % Load Working File
 load(fullfile(pwd, "working_file.mat"))
+
+% Preamble
+preamble = @(description)(sprintf("Motion Profile 1: %s", description));
+
+% Make File Name
+makeFileName = @(description)(sprintf("MP1_%s", description));
 
 
 %% Evaluate Accelerometer Calibration Parameters
@@ -37,12 +43,13 @@ ax = gca;
 hold(ax, "on")
 ax.YScale = "log";
 plot(1:n, diag(S), 'bo')
-title("Multi-Axis Motion Test: Accelerometer Singular Values")
+title(preamble("Accelerometer Singular Values"))
 xlabel("Singular Value Index")
 ylabel("s_i")
+zx.YLim(1) = 0;
 grid on
 grid minor
-saveFigureAsEps("MAM_accel_singular_values.eps", fig)
+saveFigureAsEps(makeFileName("accel_singular_values.eps"), fig)
 
 % Estimate Calibration Parameters via Normal Equations
 m_accel = inv(G.' * G) * G.' * d;
@@ -76,12 +83,12 @@ ax.YDir = "reverse";
 axis equal
 ax.XLim = [ax.XTick(1) - 0.5, ax.XTick(end) + 0.5];
 ax.YLim = [ax.YTick(1) - 0.5, ax.YTick(end) + 0.5];
-title("Multi-Axis Motion Test: Accel Correlation Matrix")
+title(preamble("Accel Correlation Matrix"))
 colorbar(ax, "eastoutside")
-saveFigureAsEps("MAM_accel_correlation_matrix.eps", fig)
+saveFigureAsEps(makeFileName("accel_correlation_matrix.eps"), fig)
 
-% Display Gyro Results
-disp("Multi-Axis Motion Accelerometer Results")
+% Display Accelermoeter Results
+disp(preamble("Results"))
 disp(accelTable)
 
 

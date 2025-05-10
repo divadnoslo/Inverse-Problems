@@ -13,6 +13,12 @@ saveFigureAsEps = @(name, fig)(exportgraphics(fig, fullfile("..", "latex", "imag
 % Load Working File
 load(fullfile(pwd, "working_file.mat"))
 
+% Preamble
+preamble = @(description)(sprintf("Motion Profile 1: %s", description));
+
+% Make File Name
+makeFileName = @(description)(sprintf("MP1_%s", description));
+
 
 %% Evaluate Accelerometer Calibration Parameters
 
@@ -40,12 +46,12 @@ ax = gca;
 hold(ax, "on")
 ax.YScale = "log";
 plot(1:n, diag(S), 'bo')
-title("Single-Axis Motion Test: Accelerometer Singular Values")
+title(preamble("Accelerometer Singular Values"))
 xlabel("Singular Value Index")
 ylabel("s_i")
 grid on
 grid minor
-saveFigureAsEps("SAM_accel_singular_values.eps", fig)
+saveFigureAsEps(makeFileName("accel_singular_values_v2.eps"), fig)
 
 %% Try out Truncated SVD
 
@@ -91,12 +97,12 @@ plot(ax, rho, eta, 'b', 'LineWidth', 3)
 plot(ax, rho_corner, eta_corner, 'rx', 'MarkerSize', 20)
 ax.XAxis.Scale = "log";
 ax.YAxis.Scale = "log";
-title("Zeroth-Order Tikhonov L-Curve")
+title(preamble("Zeroth-Order Tikhonov L-Curve"))
 xlabel("||Gm - d||_2")
 ylabel("||m||_2")
 grid on
 grid minor
-saveFigureAsEps("SAM_accel_0th_order_tik_l_curve.eps", fig)
+saveFigureAsEps(makeFileName("accel_0th_order_tik_l_curve.eps"), fig)
 
 % Compute Zeroth-Order Tikhonov Solution
 m_tikh = (G.'*G + (alpha_tikh^2)*eye(n)) \ G.' * d;
@@ -110,3 +116,4 @@ accelTable.TikhModelError = m_tikh - m_accel_true;
 
 disp("Final Results")
 disp(accelTable)
+

@@ -1,4 +1,4 @@
-%% Task 03: Evaluate Single-Axis Motion Gyroscope Experiment
+%% Task 03: Evaluate Motion Profile 1 -  Gyroscope Experiment
 
 % close all
 % clear
@@ -9,6 +9,12 @@ saveFigureAsEps = @(name, fig)(exportgraphics(fig, fullfile("..", "latex", "imag
 
 % Load Working File
 load(fullfile(pwd, "working_file.mat"))
+
+% Preamble
+preamble = @(description)(sprintf("Motion Profile 1: %s", description));
+
+% Make File Name
+makeFileName = @(description)(sprintf("MP1_%s", description));
 
 
 %% Evaluate Gyropscope Calibration Parameters
@@ -35,14 +41,15 @@ d = [...
 fig = figure("Name", "SVD Singular Values");
 ax = gca;
 hold(ax, "on")
-ax.YScale = "log";
-semilogy(1:n, diag(S), 'bo')
-title("Single-Axis Motion Test: Gyroscope Singular Values")
+plot(1:n, diag(S), 'bo')
+title(preamble("Gyroscope Singular Values"))
 xlabel("Singular Value Index")
 ylabel("s_i")
+ax.YLim(1) = 0;
+ax.YScale = "log";
 grid on
 grid minor
-saveFigureAsEps("SAM_gyro_singular_values.eps", fig)
+saveFigureAsEps(makeFileName("gyro_singular_values.eps"), fig)
 
 % Estimate Calibration Parameters via Normal Equations
 m_gyro = inv(G.' * G) * G.' * d;
@@ -76,16 +83,16 @@ ax.YDir = "reverse";
 axis equal
 ax.XLim = [ax.XTick(1) - 0.5, ax.XTick(end) + 0.5];
 ax.YLim = [ax.YTick(1) - 0.5, ax.YTick(end) + 0.5];
-title("Single-Axis Motion Test: Gyro Correlation Matrix")
+title(preamble("Gyro Correlation Matrix"))
 colorbar(ax, "eastoutside")
-saveFigureAsEps("SAM_gyro_correlation_matrix.eps", fig)
+saveFigureAsEps(makeFileName("gyro_correlation_matrix.eps"), fig)
 
 % Display Gyro Results
-disp("Single Axis Motion Gyroscope Results")
+disp(preamble("Results"))
 disp(gyroTable)
 
 
 %% Append to Working File
 
-% save(workingFilePath, "w_b__i_b_true", "f_b__i_b_true", "w_b__i_b_meas", "f_b__i_b_meas", "-append")
+% save(workingFilePath, "gyroTable", "-append")
 
