@@ -6,17 +6,58 @@
 
 \section{Discussion}
 
-Throughout this project, the biggest surprise was the inability to form a full rank model operator. This results was completely unexpected when the project began. In the first case with the traditional calibration sequence comparison, a rank of six corresponds solely to the fact six different tests were used. Because of this, it was expected that the sinusoidal motion of the calibration sequences would provide a unique observation at each time step. \textcolor{red}{I am still trying to understand why for both the single-axis motion and multi-axis motion cases, why are these model operators only of rank 12? I could use some assistance with this aspect!}
+\subsection{A Comparison to the Traditional Means of Calibration}
 
-One major expected benefit of moving from traditional inertial sensor calibration to systematic inertial sensor calibration was the fact that some measure of uncertainty could be established for each model parameter. It was completely unexpected that the resulting model covariance and 95\% confidence bounds are several orders of magnitude above the error achieved by the generalized inverse solution. Perhaps this is related to the fact that the model operator matrices themselves were not full rank. \textcolor{red}{I could really use some help understanding why this is the case, I suspect that something done along the way may not be correct!}
+It was unexpected that the model operators built from the traditional calibration data sets to be rank-deficient, blocking the opportunity to make a meaningful comparison. However, this obstacle is still impactful to the navigation community for those that have large amounts of legacy calibration data. This result implies that those that wish to upgrade to a systematic means of IMU calibration must collect new data with new motion profiles! The traditional methods for IMU calibration are not sufficient for systematic calibration.
 
-Regardless of the inability to achieve a full-rank model operator, the generalized inverse solutions were still able to closely match the true parameters used to generate the data. The residual error in the model parameters are appropriate to be considered "adaquete" for low-stakes navigation such as a hobbyist UAV. 
+\subsection{A Comparison of the Three Motion Profiles}
 
-\textcolor{red}{I have some questions about my work that I'll ask here. I'll remove these questions for the final draft of course!} 
-\begin{itemize}
-	\item \textcolor{blue}{When I performed the SVD, can I perform this on the weighted model operators, or must the SVD be performed only on the original matrices?}
-	\item \textcolor{blue}{If performing the SVD on the weighted model operators is permitted, is it still valid to perform the $\chi^2$ test and compute a p-value? If not, then why?}
-	\item \textcolor{blue}{I am considering trying out a $0^{th}$ order Tikhonov regularization as well between now and the final draft to see how it compares to the generalized inverse solution. Would you recommend adding this approach?}
-	\item \textcolor{blue}{I suspect that if I performed a Monte-Carlo experiment to compare against the computed 95\% confidence bounds, how does that work when computing the generalized inverse solution? I suppose the answer to this question depends on the answer to the first question.}
-\end{itemize}
+When designing new motion profiles to upgrade to systematic calibration, careful consideration is required to determine how the singular values, model errors, model covariances, and model parameter correlation are impacted. This comparison covers three different motion profiles. Each fitted model from the three motion profiles are compared in figure \ref{fig: parameter comparsion}.
+
+\begin{figure}[!h] 
+	\centering
+	\includegraphics[width=0.49\textwidth]{./images/gyro_parameter_comparison.eps} \hfill
+	\includegraphics[width=0.49\textwidth]{./images/accel_parameter_comparison.eps}
+	\caption{Calibration Parameter Comparison}
+	\label{fig: parameter comparsion}
+\end{figure}
+\FloatBarrier
+
+Note that the least squares solution for each motion profile is relatively close to the true model parameters. In each case, there are no extreme outliers that indicate any large error. Similarly, figure \ref{fig: parameter error comparsion} provides the error of each model parameter for each motion profile. 
+
+\begin{figure}[!h] 
+	\centering
+	\includegraphics[width=0.49\textwidth]{./images/gyro_parameter_error_comparison.eps} \hfill
+	\includegraphics[width=0.49\textwidth]{./images/accel_parameter_error_comparison.eps}
+	\caption{Calibration Parameter Error Comparison}
+	\label{fig: parameter error comparsion}
+\end{figure}
+\FloatBarrier
+
+In almost all cases, the second motion profile seems to yield the least amount of model error, while the first motion profile yields the most error. In a few cases the third motion profile outperforms the second motion profile, but it is surprising the third motion profile did not perform equally well. The model covariances and resulting confidence intervals follow a similar trend, shown in figures \ref{fig: parameter covariance comparsion} and \ref{fig: parameter conf95 comparsion}. 
+
+\begin{figure}[!h] 
+	\centering
+	\includegraphics[width=0.49\textwidth]{./images/gyro_parameter_covariance_comparison.eps} \hfill
+	\includegraphics[width=0.49\textwidth]{./images/accel_parameter_covariance_comparison.eps}
+	\caption{Calibration Parameter Covariance Comparison}
+	\label{fig: parameter covariance comparsion}
+\end{figure}
+\FloatBarrier
+
+\begin{figure}[!h] 
+	\centering
+	\includegraphics[width=0.49\textwidth]{./images/gyro_parameter_conf95_comparison.eps} \hfill
+	\includegraphics[width=0.49\textwidth]{./images/accel_parameter_conf95_comparison.eps}
+	\caption{Calibration Parameter Confidence Interval Comparison}
+	\label{fig: parameter conf95 comparsion}
+\end{figure}
+\FloatBarrier
+
+Notice that the covariances associated with the gyroscope scale factor and misalignment parameters are incredibly high, which is likely due to the correlation among these parameters shown in figure \ref{fig: MP3 correlation matrix}. This might also explain why the second motion profile yielded much better performance for the accelerometer parameters, which is when the least amount of parameter correlation was present as shown in figure \ref{fig: MP2 correlation matrix}. It seems that designing a motion profile that minimizes model parameter correlation is key to reducing the uncertainty for each calibration parameter. This insight is key for anyone calibrating IMUs for use in safety-critical systems where requirements may be stringent.
+
+\subsection{IMU Calibration for Ill-Conditioned System Dynamics}
+
+
+
 

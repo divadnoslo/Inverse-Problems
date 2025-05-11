@@ -94,34 +94,6 @@ legend(["Truth", "MP1", "MP2", "MP3"], "Location", "eastoutside")
 saveFigureAsEps("gyro_parameter_comparison.eps", fig)
 
 
-%% Chi^2 Comparison
-
-% Unpack Chi^2 Values
-chi2 = zeros(3, 1);
-for k = 1 : 3
-    chi2(k) = norm(gyroResults(k).results.ModelError)^2;
-end
-
-% Create Motion Profile Categories
-mps = categorical({'MP1', 'MP2', 'MP3'});
-
-% Model Error Bar Chart
-fig = figure("Name", "Gyro Residuals Chart");
-ax = gca;
-b = bar(mps, chi2, 'FaceColor', 'flat');
-b.CData(1,:) = [1 0 0];
-b.CData(2,:) = [0 1 0];
-b.CData(3,:) = [0 0 1];
-title("Gyroscope \chi^2 Value Comparison")
-ylabel("\chi^2")
-ax.YScale = "log";
-ax.YLim(1) = 1e-12;
-ax.YLim(2) = 1e-10;
-grid on
-grid minor
-saveFigureAsEps("gyro_chi2_comparison.eps", fig)
-
-
 %% Model Errors
 
 % Unpack Model Errors
@@ -210,7 +182,7 @@ b = bar(gyroScaleFactors, 1e6 * gyroScaleFactorCovariances);
 title("Scale Factor Estimation Covariances")
 ylabel("[ppm]")
 ax.YScale = "log";
-ax.YLim(1) = 1e1;
+% ax.YLim(1) = 1e1;
 b(1).FaceColor = mp1Color;
 b(2).FaceColor = mp2Color;
 b(3).FaceColor = mp3Color;
@@ -222,7 +194,7 @@ b = bar(gyroMisalignments, 1e3 * gyroMisalignmentCovariances);
 title("Misalignment Estimation Covariances")
 ylabel("[milli-rad]")
 ax.YScale = "log";
-ax.YLim(1) = 1e-2;
+% ax.YLim(1) = 1e-2;
 b(1).FaceColor = mp1Color;
 b(2).FaceColor = mp2Color;
 b(3).FaceColor = mp3Color;

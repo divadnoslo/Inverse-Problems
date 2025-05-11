@@ -47,7 +47,7 @@ plot(1:n, diag(S), 'bo')
 title(preamble(profileNumber, "Accelerometer Singular Values"))
 xlabel("Singular Value Index")
 ylabel("s_i")
-ax.YLim(1) = 0;
+ax.YLim(1) = 1;
 ax.YScale = "log";
 grid on
 grid minor
@@ -61,14 +61,21 @@ accelTable.L2Model = m_accel;
 m_accel_error = m_accel - m_accel_true;
 accelTable.ModelError = m_accel_error;
 
-% Model Covariance
-C_accel = inv(G.' * G);
+% Compute Residual Error
+r = d - (G * m_accel);
+
+% Estimate Standard Deviation
+nu = m - n;
+s = norm(r) / sqrt(nu);
+
+% Estimate Model Covariance
+C_accel = s^2 * inv(G.' * G);
 
 % Save Variance Values
 accelTable.Covariance = diag(C_accel);
 
 % Compute 95% Confidence Bound
-conf95 = 1.96 * sqrt(diag(C_accel));
+conf95 = tcdf(0.95, nu) * sqrt(diag(C_accel));
 accelTable.Confidence95 = conf95;
 
 % Model Correlation Matrix
@@ -99,6 +106,11 @@ out.singularValues = diag(S);
 out.covariance = C_accel;
 out.correlationMatrix = Rho;
 
+% Print Results
+fprintf("\n\n")
+fprintf("Motion Profile %d: Accelerometer Calibration Results\n", profileNumber)
+disp(accelTable)
+fprintf("\n\n")
 
 end
 

@@ -47,7 +47,7 @@ plot(1:n, diag(S), 'bo')
 title(preamble(profileNumber, "Gyroscope Singular Values"))
 xlabel("Singular Value Index")
 ylabel("s_i")
-ax.YLim(1) = 0;
+ax.YLim(1) = 1;
 ax.YScale = "log";
 grid on
 grid minor
@@ -61,14 +61,21 @@ gyroTable.L2Model = m_gyro;
 m_gyro_error = m_gyro - m_gyro_true;
 gyroTable.ModelError = m_gyro_error;
 
-% Model Covariance
-C_gyro = inv(G.' * G);
+% Compute Residual Error
+r = d - (G * m_gyro);
+
+% Estimate Standard Deviation
+nu = m - n;
+s = norm(r) / sqrt(nu);
+
+% Estimate Model Covariance
+C_gyro = s^2 * inv(G.' * G);
 
 % Save Variance Values
 gyroTable.Covariance = diag(C_gyro);
 
 % Compute 95% Confidence Bound
-conf95 = 1.96 * sqrt(diag(C_gyro));
+conf95 = tcdf(0.95, nu) * sqrt(diag(C_gyro));
 gyroTable.Confidence95 = conf95;
 
 % Model Correlation Matrix
@@ -98,6 +105,12 @@ out.results = gyroTable;
 out.singularValues = diag(S);
 out.covariance = C_gyro;
 out.correlationMatrix = Rho;
+
+% Print Results
+fprintf("\n\n")
+fprintf("Motion Profile %d: Gyroscope Calibration Results\n", profileNumber)
+disp(gyroTable)
+fprintf("\n\n")
 
 
 end

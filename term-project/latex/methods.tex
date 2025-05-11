@@ -29,7 +29,7 @@ The accelerometers are also subject to zero-mean Gaussian noise with a velocity 
  
 The gyroscopes are also subject to zero-mean Gaussian noise with an angle random walk (ARW) value of $0.15 \unit{\degree\per\sqrt\hour}$ which translates to a $\sigma_g = \frac{0.15}{60}\frac{\pi}{180} = 4.3633 \times 10^{-5} \unit{\radian\per\second}$.
 
-For simulation purposes, true model parameters will be selected within these bounds in later sections.
+For simulation purposes, true model parameters will be selected within these bounds.
 
 
 %\subsection{2013C Series Position and Rate Table System Specifications}
@@ -49,6 +49,48 @@ For simulation purposes, true model parameters will be selected within these bou
 %\end{align*}
 %
 %The approximations are very crude, however expressing their uncertainty as a Normal distribution allows for a consistent application in the methods ahead.
+
+
+\subsection{Simulating Calibration Data and Model Parameters}
+
+Rotational motion on the test bed will be simulated by developing a true sequence of angular velocities $\bv{\omega}$ across time $t$ experienced by the UUT. The attitude of the UUT, represented by the direction cosine matrix $C\left(t\right)$, will be integrated in discrete steps such that the $k^{\textrm{th}}$ step in the sequence is 
+
+\begin{align}
+	C\left(t_k\right) = C_0 \prod_{i = 1}^k e^{\left[\bv{\omega}\left(t_i\right) \times\right] \Delta t}
+\end{align}  
+
+where $\left[\bv{\omega}\left(t_i\right) \times\right]$ is a skew-symmetric matrix and $\Delta t$ is the time step. While the test bed rotates, the accelerometers will each be measuring components of the normal force from the test bed resulting from the acceleration due to gravity $g$. For each time step $k$, the true specific force quantity is given below.
+
+\begin{align}
+	\bv{f}\left(t_k\right) = C\left(t_k\right) \begin{bmatrix} 0 \\ 0 \\ g \end{bmatrix}
+\end{align}
+
+In the simulation, it will be assumed that quantities $\bv{\omega}$ and $\bv{f}$ will be available through measurement outputs of the test bed itself. Measurements of these quantities from the UUT will be corrupted with measurement error according to equations \ref{eq: expanded IMU forward error model}. The values of the model parameters are recorded in table \ref{tab: UUT simulated model parameters} and are selected with reasonable orders of magnitude as discussed in section \ref{sec: stim 300 imu specifications}. 
+
+\begin{table}[h!]
+	\centering
+	\begin{tabular}{|p{4cm}|p{3.5cm}|p{3.5cm}|}
+		\hline
+		\textbf{Model Parameter} & \textbf{Accel Values} & \textbf{Gyro Values} \\ \hline
+		Fixed Bias X & $0.0628 \,\unit{\meter\per\second\squared}$ & $0.48481 \times 10^{-3} \,\unit{\radian\per\second}$ \\ \hline
+		Fixed Bias Y & $-0.0510 \,\unit{\meter\per\second\squared}$ & $0.14544 \times 10^{-3}  \,\unit{\radian\per\second}$ \\ \hline
+		Fixed Bias Z & $0.0363 \,\unit{\meter\per\second\squared}$ & $1.2120 \times 10^{-3}  \,\unit{\radian\per\second}$ \\ \hline
+		Scale Factor Error X & $150 \,\textrm{ppm}$ & $450 \,\textrm{ppm}$ \\ \hline
+		Scale Factor Error Y & $-175 \,\textrm{ppm}$ & $-300 \,\textrm{ppm}$ \\ \hline
+		Scale Factor Error Z & $198 \,\textrm{ppm}$ & $175 \,\textrm{ppm}$ \\ \hline
+		Misalignment XY & $0.1 \,\unit{\milli\radian}$ & $-0.1 \,\unit{\milli\radian}$ \\ \hline
+		Misalignment XZ & $-0.2 \,\unit{\milli\radian}$ & $0.2 \,\unit{\milli\radian}$ \\ \hline
+		Misalignment YX & $0.3 \,\unit{\milli\radian}$ & $-0.3 \,\unit{\milli\radian}$ \\ \hline
+		Misalignment YZ & $-0.4 \,\unit{\milli\radian}$ & $0.4 \,\unit{\milli\radian}$ \\ \hline
+		Misalignment ZX & $0.5 \,\unit{\milli\radian}$ & $-0.5 \,\unit{\milli\radian}$ \\ \hline
+		Misalignment ZY & $-0.6 \,\unit{\milli\radian}$ & $0.6 \,\unit{\milli\radian}$ \\ \hline
+	\end{tabular}
+	\caption{UUT Simulated Model Parameters}
+	\label{tab: UUT simulated model parameters}
+\end{table}
+\FloatBarrier
+
+Capabilities for simulating calibration sequences on test beds and IMU error models have been developed in \MATLAB. 
 
 
 \subsection{Formulating IMU Calibration as a Discrete Linear Inverse Problem}
@@ -132,90 +174,98 @@ Then, the discrete linear inverse problem for all gyroscope calibration paramete
 \end{align}
 
 
-\subsection{Model Covariance and Weighted Least Squares}
+\subsection{Assessing Singular Values}
 
-As previously mentioned, one major benefit of systematic calibration vs. traditional calibration is the ability to produce some measure of uncertainty with respect to the estimated calibration model parameters. Given that inertial sensors are provided some terms within their specification sheets to determine a zero-mean Gaussian distribution for sensor noise, each discrete linear inverse problems formulated in the previous section can be reweighted to form weighted least squares problems. This provides an opportunity to examine how well the calibration model parameters fit the collected data by performing a $\chi^2$ test and examining the resulting p-values.
+Prior to solving the inverse problem, we must ensure that the problem is not ill-conditioned. This is accomplished by performing a singular value decomposition (SVD) on the model operators $\Omega$ and $F$ respectively from equations \ref{eq: Omega} and \ref{eq: F}. Although these model operators may appear to be full-rank when calling \MATLAB's \verb|rank()| function, some singular values may be poorly scaled. Therefore, it is essential to verify that the singular values are suitable for each new motion profile run on the three-axis rate table. 
 
-For example, consider the system of equations for the accelerometer calibration parameters defined in equation \ref{eq: Gm = d for all accel parameters}. Recall, the standard deviation for accelerometer sensor noise is provided in section \ref{sec: stim 300 imu specifications}. This system of equations can be reweighted accordingly below.
+If the singular values are poorly scaled, it may be necessary to compute a truncated SVD solution or regularize the solution. In both cases, this takes away the opportunity to assess the resulting covariances and correlations between model parameters as the model null-space is now non-trivial and may lead to a biases solution in the model parameters. 
 
-\begin{align}
-	W &= \sigma_a I \notag \notag\\
-	\notag\\
-	W G_a \bv{m}_a &= W \bv{d}_a \\
-	\notag\\
-	G_{a,w} \bv{m}_a &= \bv{d}_{a,w} \notag
+
+\subsection{L2 Regression without a Known Normal Distribution} \label{sec: L2 regresssion}
+
+Although a typical IMU specification sheet contains values of VRW and ARW which relate to the white noise present on each sensor channel, in practice each individual sensor is subject to its own amount of white noise. Therefore, to be consistent with application, we will assume that each sample is dependent and identically distributed, although the standard deviation associated with the white noise will be unknown. Therefore, casting this problem as a weighted least squares problem is not feasible. Additionally in practice, it is not a safe assumption to assume that the power of the white noise signal is equally distributed at all frequencies, introducing noise color, however this will be ignored for both simulation and evaluation purposes. 
+
+Since the inverse problem can not be casted as a weighted least squares problem, the inverse problem will be solved via the normal equations (assuming the model operator is not ill-conditioned) without any scaling applied to the model operators. 
+
+\begin{align} \label{eq: L2 Regression}
+	\bv{m}_{a,L2} &= \left(G_a^T G_a\right)^{-1} G_a^T \bv{d_a} \notag\\
+	\\
+	\bv{m}_{g,L2} &= \left(G_g^T G_g\right)^{-1} G_g^T \bv{d_g} \notag
 \end{align}
 
-The model covariance matrix for the accelerometer parameters is given in equation \ref{eq: accel model covariance}.
+Without a known standard deviation, we instead must estimate the resulting standard deviation from the residuals after performing the least squares fit. 
 
-\begin{align} \label{eq: accel model covariance}
-	\Cov{\bv{m}_{L2}} = \left(G_{a,w}^T G_{a,w}\right)^{-1}
+\begin{align} \label{eq: estimated sigma}
+	s_a = \frac{\twonorm{G_a \bv{m}_{a,L2} - \bv{d}_a}}{\sqrt{m - n}} \notag\\
+	\\
+	s_g = \frac{\twonorm{G_g \bv{m}_{g,L2} - \bv{d}_g}}{\sqrt{m - n}} \notag
 \end{align}
 
-From this, the 95\% confidence bounds for the L2 regression solution $\bv{m}_{L2}$ are given below.
+With these estimated standard deviations, we can approximate the model covariance. 
 
-\begin{align}
-	\bv{m}_{L2} \pm 1.96 \textrm{diag}\left(\Cov{\bv{m}_{L2}}\right)^{\frac{1}{2}}
+\begin{align} \label{eq: estimated model covaraince}
+	\tilde{C}_a = s_a^2 \left(G_a^T G_a\right)^{-1} \notag\\
+	\\
+	\tilde{C}_g = s_g^2 \left(G_g^T G_g\right)^{-1} \notag
 \end{align}
 
-Additionally, the $\chi^2$ test may be formed to compute a p-value, allowing for another quantitative measure to determine how well the model fits the provided data. The $\chi^2$ statistic is formed according to equation \ref{eq: chi-squared statistic}. 
+Rather than using a Normal distribution to determine the 95\% confidence interval, we must use the Student's $t$ distribution instead. In this use case, the degree of freedom with be very large which should well-approximate the normal distribution. 
 
-\begin{align} \label{eq: chi-squared statistic}
-	\chi^2_{\textrm{obs}} = \sum_{i}^{m} \frac{\left(d_i - \left(G \bv{m}_{L2}\right)_i\right)^2}{\sigma^2_i}
+\begin{align} \label{eq: confidence intervals}
+	m_{a,L2_i} &\pm t_{0.95,\nu} \sqrt{\tilde{C}_{a_{i,i}}}  \notag\\
+	\\
+	m_{g,L2_i} &\pm t_{0.95,\nu} \sqrt{\tilde{C}_{g_{i,i}}}  \notag
 \end{align}
 
-
-\subsection{Simulating Calibration Data and Model Parameters}
-
-Rotational motion on the test bed will be simulated by developing a true sequence of angular velocities $\bv{\omega}$ across time $t$ experienced by the UUT. The attitude of the UUT, represented by the direction cosine matrix $C\left(t\right)$, will be integrated in discrete steps such that the $k^{\textrm{th}}$ step in the sequence is 
-
-\begin{align}
-	C\left(t_k\right) = C_0 \prod_{i = 1}^k e^{\left[\bv{\omega}\left(t_i\right) \times\right] \Delta t}
-\end{align}  
-
-where $\left[\bv{\omega}\left(t_i\right) \times\right]$ is a skew-symmetric matrix and $\Delta t$ is the time step. While the test bed rotates, the accelerometers will each be measuring components of the normal force from the test bed resulting from the acceleration due to gravity $g$. For each time step $k$, the true specific force quantity is given below.
-
-\begin{align}
-	\bv{f}\left(t_k\right) = C\left(t_k\right) \begin{bmatrix} 0 \\ 0 \\ g \end{bmatrix}
-\end{align}
-
-In the simulation, it will be assumed that quantities $\bv{\omega}$ and $\bv{f}$ will be available through measurement outputs of the test bed itself. Measurements of these quantities from the UUT will be corrupted with measurement error according to equations \ref{eq: expanded IMU forward error model}. The values of the model parameters are recorded in table \ref{tab: UUT simulated model parameters} and are selected with reasonable orders of magnitude as discussed in section \ref{sec: stim 300 imu specifications}. 
-
-\begin{table}[h!]
-	\centering
-	\begin{tabular}{|p{4cm}|p{3.5cm}|p{3.5cm}|}
-		\hline
-		\textbf{Model Parameter} & \textbf{Accel Values} & \textbf{Gyro Values} \\ \hline
-		Fixed Bias X & $0.0628 \,\unit{\meter\per\second\squared}$ & $0.48481 \times 10^{-3} \,\unit{\radian\per\second}$ \\ \hline
-		Fixed Bias Y & $-0.0510 \,\unit{\meter\per\second\squared}$ & $0.14544 \times 10^{-3}  \,\unit{\radian\per\second}$ \\ \hline
-		Fixed Bias Z & $0.0363 \,\unit{\meter\per\second\squared}$ & $1.2120 \times 10^{-3}  \,\unit{\radian\per\second}$ \\ \hline
-		Scale Factor Error X & $150 \,\textrm{ppm}$ & $450 \,\textrm{ppm}$ \\ \hline
-		Scale Factor Error Y & $-175 \,\textrm{ppm}$ & $-300 \,\textrm{ppm}$ \\ \hline
-		Scale Factor Error Z & $198 \,\textrm{ppm}$ & $175 \,\textrm{ppm}$ \\ \hline
-		Misalignment XY & $0.1 \,\unit{\milli\radian}$ & $-0.1 \,\unit{\milli\radian}$ \\ \hline
-		Misalignment XZ & $-0.2 \,\unit{\milli\radian}$ & $0.2 \,\unit{\milli\radian}$ \\ \hline
-		Misalignment YX & $0.3 \,\unit{\milli\radian}$ & $-0.3 \,\unit{\milli\radian}$ \\ \hline
-		Misalignment YZ & $-0.4 \,\unit{\milli\radian}$ & $0.4 \,\unit{\milli\radian}$ \\ \hline
-		Misalignment ZX & $0.5 \,\unit{\milli\radian}$ & $-0.5 \,\unit{\milli\radian}$ \\ \hline
-		Misalignment ZY & $-0.6 \,\unit{\milli\radian}$ & $0.6 \,\unit{\milli\radian}$ \\ \hline
-	\end{tabular}
-	\caption{UUT Simulated Model Parameters}
-	\label{tab: UUT simulated model parameters}
-\end{table}
-\FloatBarrier
-
-Capabilities for simulating calibration sequences on test beds and IMU error models have been developed in \MATLAB. 
+In addition to the model covariance, the correlation between each model parameter will also be examined. 
 
 
-\subsection{Experiment Design}
+\subsection{Motion Profile Evaluation}
 
-Three calibration sequences will be considered for the application of inverse problem techniques to IMU calibration. 
+First, we will investigate using traditional calibration data to solve the inverse problem and make comparisons to the traditional post-processing methods for IMU calibration. 
+
+Then, we will investigate three unique motion profiles for evaluation.
 
 \begin{enumerate}
-	\item Traditional Calibration Sequence
-	\item Single-Axis Motion Calibration Sequence
-	\item Multi-Axis Motion Calibration Sequence
+	\item \textbf{Single-Axis Tilts in One Direction}
+	\item \textbf{Single-Axis Tilts in Two Directions}
+	\item \textbf{Multi-Axis Tilts in All Directions}
 \end{enumerate}
 	
-Each calibration sequence is intended to provide significant changes to the model operator which will then require consideration of how to solve the inverse problem. The following section will cover the results of each simulated experiment. 
+
+The dynamics of each motion profile will cause varying model fits, covariances, and correlations. These insights will be useful to those needing to develop new motion profiles to calibrate IMUs. Their Euler angle profiles are proved in figures \ref{fig: MP1 Euler Angle Profile}, \ref{fig: MP2 Euler Angle Profile}, and \ref{fig: MP3 Euler Angle Profile}.
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.5\textwidth]{./images/MP1_euler_angle_profile.eps}
+	\caption{Motion Profile 1: Euler Angle Profile}
+	\label{fig: MP1 Euler Angle Profile}
+\end{figure}
+\FloatBarrier
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.5\textwidth]{./images/MP2_euler_angle_profile.eps}
+	\caption{Motion Profile 2: Euler Angle Profile}
+	\label{fig: MP2 Euler Angle Profile}
+\end{figure}
+\FloatBarrier
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.5\textwidth]{./images/MP3_euler_angle_profile.eps}
+	\caption{Motion Profile 3: Euler Angle Profile}
+	\label{fig: MP3 Euler Angle Profile}
+\end{figure}
+\FloatBarrier
+
+Then, we will analyze a motion profile designed to purposely be ill-conditioned to determine what model fit, if any, could be obtained if forced into this situation. This motion profile is provided in figure \ref{fig: MP4 Euler Angle Profile}.
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.5\textwidth]{./images/MP4_euler_angle_profile.eps}
+	\caption{Motion Profile 3: Euler Angle Profile}
+	\label{fig: MP4 Euler Angle Profile}
+\end{figure}
+\FloatBarrier
 
