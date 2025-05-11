@@ -413,6 +413,7 @@ ylabel("[milli-rad]")
 grid on
 grid minor
 legend(["Truth", "SVD", "Tikh"], "Location", "eastoutside")
+saveFigureAsEps(makeFileName(profileNumber, "model_parameter_comparison.eps"), fig)
 
 % Model Errors
 fig = figure("Name", "Model Absolute Error");
@@ -429,7 +430,7 @@ title("Gyroscope Bias Absolute Error")
 ylabel("[deg/sec]")
 grid on
 grid minor
-legend(["Truth", "SVD", "Tikh"], "Location", "eastoutside")
+legend(["SVD", "Tikh"], "Location", "eastoutside")
 ax = nexttile(2);
 b = bar(...
     gyroScaleFactors, ...
@@ -443,7 +444,7 @@ title("Gyroscope Scale Factor Absolute Error")
 ylabel("[ppm]")
 grid on
 grid minor
-legend(["Truth", "SVD", "Tikh"], "Location", "eastoutside")
+legend(["SVD", "Tikh"], "Location", "eastoutside")
 ax = nexttile(3);
 b = bar(...
     gyroMisalignments, ...
@@ -454,9 +455,11 @@ b(2).FaceColor = tikhColor;
 title("Gyroscope Misalignment Absolute Error")
 ylabel("[milli-rad]")
 ax.YScale = "log";
+ax.YLim(1) = 1e-7;
 grid on
 grid minor
-legend(["Truth", "SVD", "Tikh"], "Location", "eastoutside")
+legend(["SVD", "Tikh"], "Location", "eastoutside")
+saveFigureAsEps(makeFileName(profileNumber, "model_parameter_error_comparison.eps"), fig)
 
 
 %% Display Final Results

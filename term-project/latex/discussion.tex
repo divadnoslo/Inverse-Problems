@@ -4,11 +4,12 @@
 \begingroup
 \allowdisplaybreaks
 
-\section{Discussion}
+\section{Discussion} \label{sec: Discussion}
 
 \subsection{A Comparison to the Traditional Means of Calibration}
 
 It was unexpected that the model operators built from the traditional calibration data sets to be rank-deficient, blocking the opportunity to make a meaningful comparison. However, this obstacle is still impactful to the navigation community for those that have large amounts of legacy calibration data. This result implies that those that wish to upgrade to a systematic means of IMU calibration must collect new data with new motion profiles! The traditional methods for IMU calibration are not sufficient for systematic calibration.
+
 
 \subsection{A Comparison of the Three Motion Profiles}
 
@@ -56,8 +57,28 @@ In almost all cases, the second motion profile seems to yield the least amount o
 
 Notice that the covariances associated with the gyroscope scale factor and misalignment parameters are incredibly high, which is likely due to the correlation among these parameters shown in figure \ref{fig: MP3 correlation matrix}. This might also explain why the second motion profile yielded much better performance for the accelerometer parameters, which is when the least amount of parameter correlation was present as shown in figure \ref{fig: MP2 correlation matrix}. It seems that designing a motion profile that minimizes model parameter correlation is key to reducing the uncertainty for each calibration parameter. This insight is key for anyone calibrating IMUs for use in safety-critical systems where requirements may be stringent.
 
+
 \subsection{IMU Calibration for Ill-Conditioned System Dynamics}
 
+There may be situations where a three-axis rate table or other rotational test-bed may have limitations that could cause a situation for ill-conditioned model operators. Motion profile 4 was created to force this exact situation. Two methods, the truncated SVD and Tikhonov regularization, were applied to stabilize the solution. Figure \ref{fig: MP4 model parameter comparison} shows how each solution compares to the true model parameters.
 
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.5\textwidth]{./images/MP4_model_parameter_comparison.eps}
+	\caption{Motion Profile 4 - Model Parameter Comparison}
+	\label{fig: MP4 model parameter comparison}
+\end{figure}
+\FloatBarrier
 
+Both methods were unable to solve parameters $m_{g,xz}$ and $m_{g,yz}$, which is consistent with the large values in the model null space shown in figure \ref{fig: MP4 model null space}. However, some other model parameters still yielded decent solutions regardless of the model resolution. Interestingly, the error from each method were consistent with each other. 
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.5\textwidth]{./images/MP4_model_parameter_error_comparison.eps}
+	\caption{Motion Profile 4 - Model Parameter Error Comparison}
+	\label{fig: MP4 model parameter error comparison}
+\end{figure}
+\FloatBarrier
+
+The insight here is that attention needs to be brought to the model null space and resulting resolution matrix to understand how certain calibration parameters may be impacted. Although this situation may not be ideal, it is still possible to achieve some sort of a useful solution, even if it only provides a partial calibration of the sensor suite. 
 

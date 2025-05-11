@@ -255,10 +255,63 @@ In this case, the ill-conditioned model operator only applied to the gyroscope c
 
 \begin{figure}[h] 
 	\centering
-	\includegraphics[width=0.75\textwidth]{./images/MP4_gyro_singular_values.eps}
+	\includegraphics[width=0.5\textwidth]{./images/MP4_gyro_singular_values.eps}
 	\caption{Motion Profile 4 - Gyroscope Singular Values}
 	\label{fig: MP4 gyro singular values}
 \end{figure}
 \FloatBarrier
 
+This is the situation when both the data and model null spaces are non-trivial, as the model operator contains 12 columns but is only of rank 9. The model null space is shown below in figure \ref{fig: MP4 model null space}. 
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.35\textwidth]{./images/model_null_space.png}
+	\caption{Motion Profile 4 - Model Null Space}
+	\label{fig: MP4 model null space}
+\end{figure}
+\FloatBarrier
+
+The impact of this null space is also shown in the model resolution matrix, which is provided in figure \ref{fig: MP4 gyro model resolution}. Notice that every odd index (i.e., 1, 3, 5, ...) of the model parameters are perfect resolved, but each even index (i.e., 2, 4, 6, ...) are subject to some sort of smearing. This is likely due to the specific dynamics chosen for this motion profile.
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.5\textwidth]{./images/MP4_gyro_model_resolution.eps}
+	\caption{Motion Profile 4 - Gyroscope Model Resolution}
+	\label{fig: MP4 gyro model resolution}
+\end{figure}
+\FloatBarrier
+
+The generalized pseudo-inverse is used to solve for a model of calibration parameters. 
+
+\begin{align}
+	\bv{m}_{SVD} = G_g^\dagger \bv{d}_g = V_p S_p^{-1} U_p^T \bv{d}_g
+\end{align}
+
+Another means to solve for a model of calibration parameters is to apply Tikhonov regularization. In this case $0^{th}$-order Tikhonov regularization, also known as damped least squares, was utilized. To select the damping parameter $\alpha$, an L-curve was created to find the point at which both the model residuals and model norm are both minimized. 
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.5\textwidth]{./images/MP4_accel_0th_order_tik_l_curve.eps}
+	\caption{Motion Profile 4 - Tikhonov Regularization L-Curve}
+	\label{fig: MP4 gyro tikh l-curve}
+\end{figure}
+\FloatBarrier
+
+This point results in a value of $\alpha = 0.007824$. The solution $\bv{m}_{tikh}$ is computed accordingly below. 
+
+\begin{align}
+	\bv{m}_{tikh} = \left(G_g^T G_g + \alpha I\right)^{-1} G_g^T \bv{d}_g
+\end{align}
+
+The results for the two methods of solving for a calibration model in the presence of ill-conditioned model operators are below. 
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=1\textwidth]{./images/MP4_gyro_results.png}
+	\caption{Motion Profile 4 - Gyroscope Calibration Results}
+	\label{fig: MP4 gyro results}
+\end{figure}
+\FloatBarrier
+
+Take notice that each method produced the same model. 
 
